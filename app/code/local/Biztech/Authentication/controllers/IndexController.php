@@ -162,7 +162,7 @@ class Biztech_Authentication_IndexController extends Mage_Core_Controller_Front_
         $currency_code = Mage::getModel('core/store')->load($storeId)->getCurrentCurrencyCode();
 
         $isPos = 0;
-        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos);
+        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos, 'is_Mobileassistantpro' => 1);
         $result = Mage::helper('core')->jsonEncode($resultArr);
         return Mage::app()->getResponse()->setBody($result);
     }

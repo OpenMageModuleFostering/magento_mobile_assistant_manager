@@ -1,6 +1,34 @@
-<?php 
-$storeId = Mage::app()->getStore()->getStoreId();
-$url = Mage::app()->getStore($storeId)->getUrl();
-
+<?php
+if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) { // store level
+    $storeId = Mage::getModel('core/store')->load($code)->getId();
+    $url = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+} elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) { // website level
+    $website_id = Mage::getModel('core/website')->load($code)->getId();
+    $storeId = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+    $url = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+} else { // default level
+    $defaultId = array();
+    $websites = Mage::app()->getWebsites();
+    if (count($websites) > 0) {
+        $url = array();
+        foreach ($websites as $website) {
+            $defaultId[] = $website->getDefaultGroup(true)->getDefaultStoreId();
+        }
+        foreach ($defaultId as $storeId) {
+            $url[] = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+        }
+    } else {
+        $storeId = Mage::app()->getWebsite(true)->getDefaultGroup()->getDefaultStoreId();
+        $url = Mage::app()->getStore($storeId)->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK);
+    }
+}
 ?>
-<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?php echo urlencode($url); ?>&choe=UTF-8" title="<?php echo $url; ?>" />
+<?php if (is_array($url)) { ?> 
+    <div style="width: 615px ! important;">
+        <?php for ($i = 0; $i < count($url); $i++) { ?>
+            <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?php echo urlencode($url[$i]); ?>&choe=UTF-8" title="<?php echo $url[$i]; ?>" style="margin-left: 5px;"/>
+        <?php } ?>
+    </div> 
+<?php } else { ?>
+    <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?php echo urlencode($url); ?>&choe=UTF-8" title="<?php echo $url; ?>" />
+<?php } ?>
