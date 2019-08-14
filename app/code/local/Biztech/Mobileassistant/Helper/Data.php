@@ -54,7 +54,7 @@ class Biztech_Mobileassistant_Helper_Data extends Mage_Core_Helper_Abstract {
             }
         }
         $isPos = 0;
-        $result = array('success' => $successArr, 'stores' => $storeArr, 'is_pos' => $isPos, 'is_Mobileassistantpro' => 1);
+        $result = array('success' => $successArr, 'stores' => $storeArr, 'is_pos' => $isPos, 'is_Mobileassistantpro' => 0);
         return $result;
     }
 
@@ -89,29 +89,7 @@ class Biztech_Mobileassistant_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function isEnable() {
-        $websiteId = Mage::app()->getWebsite()->getId();
-        $isenabled = Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled');
-        if ($isenabled) {
-            if ($websiteId) {
-                $websites = $this->getAllWebsites();
-                $key = Mage::getStoreConfig('mobileassistant/activation/key');
-                if ($key == null || $key == '') {
-                    return false;
-                } else {
-                    $en = Mage::getStoreConfig('mobileassistant/activation/en');
-                    if ($isenabled && $en && in_array($websiteId, $websites)) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-            } else {
-                $en = Mage::getStoreConfig('mobileassistant/activation/en');
-                if ($isenabled && $en) {
-                    return true;
-                }
-            }
-        }
+        return Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled');
     }
 
     public function pushNotification($notification_type, $entity_id, $params = NULL) {

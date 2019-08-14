@@ -92,15 +92,6 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enter your message which will be received on the Mobile app whenever a product qty is lower than or equal to minimum qty.</comment>
                         </product_inventory_notification_msg>
-                        <product_review_notification_msg translate="label">
-                            <label>Product Review Notification Message</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>7</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Enter your message which will be received on the Mobile app whenever a new product review is added.</comment>
-                        </product_review_notification_msg>
                         <barcode_for_url translate="label">
                             <label>Store Base Url QRcode</label>
                             <frontend_type>text</frontend_type>

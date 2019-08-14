@@ -15,11 +15,7 @@ class Biztech_Mobileassistant_Model_System_Config_Notification {
             array(
                 'value' => 'customer_notification',
                 'label' => 'Customer Notification',
-            ),
-            array(
-                'value' => 'review_notification',
-                'label' => 'Review Notification',
-            ));
+        ));
 
         return $optionArray;
     }

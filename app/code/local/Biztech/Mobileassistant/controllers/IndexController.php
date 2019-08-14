@@ -162,7 +162,7 @@ class Biztech_Mobileassistant_IndexController extends Mage_Core_Controller_Front
         $currency_code = Mage::getModel('core/store')->load($storeId)->getCurrentCurrencyCode();
 
         $isPos = 0;
-        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos, 'is_Mobileassistantpro' => 1);
+        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos, 'is_Mobileassistantpro' => 0);
         $result = Mage::helper('core')->jsonEncode($resultArr);
         return Mage::app()->getResponse()->setBody($result);
     }
