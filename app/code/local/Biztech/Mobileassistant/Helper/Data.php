@@ -65,7 +65,7 @@ class Biztech_Mobileassistant_Helper_Data extends Mage_Core_Helper_Abstract {
             $price = $store->roundPrice($store->convertPrice($price));
             $currencyCode = Mage::app()->getStore($storeId)->getCurrentCurrencyCode();
         }
-        $price = strip_tags(Mage::app()->getLocale()->currency($currencyCode)->toCurrency($this->getPriceFormat($price)));
+        $price = strip_tags($this->getPriceFormat($price));
         return $price;
     }
 

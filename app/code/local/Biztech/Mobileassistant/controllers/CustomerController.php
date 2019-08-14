@@ -209,7 +209,6 @@ class Biztech_Mobileassistant_CustomerController extends Mage_Core_Controller_Fr
                 ));
             }
 
-
             foreach ($customers as $customer) {
                 $billing_address = Mage::getModel('customer/address')->load($customer->getDefaultBilling());
                 $shipping_address = Mage::getModel('customer/address')->load($customer->getDefaultShipping());

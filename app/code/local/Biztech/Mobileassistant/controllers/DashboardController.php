@@ -148,9 +148,9 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
 
             $baseCurrencyCode = Mage::app()->getStore()->getBaseCurrencyCode();
 
-            $orderGrandTotal = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(array_sum($orderTotalByDate)));
-            $lifeTimeSales = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getLifetime(), 2)));
-            $averageOrder = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getAverage(), 2)));
+            $orderGrandTotal = strip_tags(round(array_sum($orderTotalByDate), 2));
+            $lifeTimeSales = strip_tags(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getLifetime(), 2));
+            $averageOrder = strip_tags(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getAverage(), 2));
 
             if ($type_id == 7) {
                 $avg_order_count = $total_count / 7;
@@ -173,7 +173,7 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
             }
 
             $avg_order_count = number_format($avg_order_count, 2, '.', ',');
-            $avg_ordergrandtotal = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency($avg_ordergrandtotal));
+            $avg_ordergrandtotal = strip_tags(round($avg_ordergrandtotal, 2));
 
 
             $orderTotalResultArr = array('dashboard_result' => array('ordertotalbydate' => $orderTotalByDate, 'ordergrandtotal' => $orderGrandTotal, 'totalordercount' => $total_count, 'lifetimesales' => $lifeTimeSales, 'averageorder' => $averageOrder, 'avg_order_count' => $avg_order_count, 'avg_order_grandtotal' => $avg_ordergrandtotal));
@@ -228,8 +228,8 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
                     'name' => $_collection->getName(),
                     'email' => $_collection->getEmail(),
                     'orders_count' => $_collection->getOrdersCount(),
-                    'average_order_amount' => Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersAvgAmount())),
-                    'total_order_amount' => Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersSumAmount()))
+                    'average_order_amount' => Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersAvgAmount()),
+                    'total_order_amount' => Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersSumAmount())
                 );
             }
 
@@ -603,7 +603,7 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
             /* order detail */
             $orderDetails = $this->getorderetails($storeId, $type_id, $tab, $source, $limit);
             $orderTotalByDate = $orderDetails['ordertotalbydate'];
-            $orderGrandTotal = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(array_sum($orderTotalByDate)));
+            $orderGrandTotal = strip_tags(array_sum($orderTotalByDate));
 
 
             $widgetResultArr['widget_order'] = array('ordergrandtotal' => $orderGrandTotal, 'totalordercount' => $orderDetails['ordertotalcount'], 'ordercollection' => $orderDetails['ordercollection']);

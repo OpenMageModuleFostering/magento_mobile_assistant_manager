@@ -15,7 +15,7 @@ class Biztech_Mobileassistant_Model_System_Config_Notification {
             array(
                 'value' => 'customer_notification',
                 'label' => 'Customer Notification',
-        ));
+            ));
 
         return $optionArray;
     }

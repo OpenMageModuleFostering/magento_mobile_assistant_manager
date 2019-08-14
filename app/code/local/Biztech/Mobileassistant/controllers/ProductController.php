@@ -124,21 +124,21 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                     $productSku = $post_data['sku'];
                 }
                 if (isset($productSku) && $productSku != null) {
-                    $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $productSku);
+                    $product = Mage::getModel('catalog/product')->setStoreId($storeId)->loadByAttribute('sku', $productSku);
                     if ($product) {
-                        $product_data = Mage::getModel('catalog/product')->load($product->getId());
+                        $product_data = Mage::getModel('catalog/product')->setStoreId($storeId)->load($product->getId());
                     } else {
                         $result = Mage::helper('core')->jsonEncode(array('mesage' => 'No product found.'));
                         return Mage::app()->getResponse()->setBody($result);
                     }
                 } else {
-                    $product_data = Mage::getModel('catalog/product')->load($productId);
+                    $product_data = Mage::getModel('catalog/product')->setStoreId($storeId)->load($productId);
                 }
 
 
                 $pro_status = $product_data->getStatus();
                 $pro_qty = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
-                
+
                 $_images = $product_data->getMediaGalleryImages();
                 if ($_images) {
                     foreach ($_images as $_image) {
@@ -166,7 +166,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                     } else {
                         $status = 'Disabled';
                     }
-                    
+
                     $associated_products_details[] = array(
                         'id' => $associated_product->getId(),
                         'sku' => $associated_product->getSku()
@@ -191,7 +191,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                     'qty' => $pro_qty,
                     'is_in_stock' => $product_data->getIsInStock(),
                     'price' => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
-                    'desc' => $product_data->getShortDescription(),
+                    'desc' => $product_data->getDescription(),
                     'type' => $product_data->getTypeId(),
                     'special_price' => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
                     'image' => ($product_data->getImage()) ? Mage::helper('catalog/image')->init($product_data, 'image', $product_data->getImage())->resize(300, 330)->keepAspectRatio(true)->constrainOnly(true)->__toString() : 'N/A',
