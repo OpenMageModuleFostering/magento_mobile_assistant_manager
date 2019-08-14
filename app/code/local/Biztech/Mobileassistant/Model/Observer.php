@@ -11,12 +11,12 @@
                     }
                     self::$_handleCustomerFirstOrderCounter++;
                     $collections = Mage::getModel("mobileassistant/mobileassistant")->getCollection()->addFieldToFilter('notification_flag',Array('eq'=>1));
-                    $passphrase  = 'push2magento';
+                    $passphrase  = 'magento123';
                     $message     = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification_msg');
                     if($message == null){
                         $message     = Mage::helper('mobileassistant')->__('Placed new order in your store..!');
                     }
-                    $apnsCert = Mage::getBaseDir('lib'). DS. "mobileassistant/magentoKeys.pem";
+                    $apnsCert = Mage::getBaseDir('lib'). DS. "mobileassistant/ck.pem";
                     $ctx      = stream_context_create();
                     stream_context_set_option($ctx, 'ssl', 'local_cert', $apnsCert);
                     stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);      
