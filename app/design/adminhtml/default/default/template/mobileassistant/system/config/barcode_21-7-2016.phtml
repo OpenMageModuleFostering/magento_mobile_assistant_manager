@@ -1,0 +1,6 @@
+<?php 
+$storeId = Mage::app()->getStore()->getStoreId();
+$url = Mage::app()->getStore($storeId)->getUrl();
+
+?>
+<img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=<?php echo urlencode($url); ?>&choe=UTF-8" title="<?php echo $url; ?>" />

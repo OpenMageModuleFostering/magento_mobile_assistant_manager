@@ -158,11 +158,19 @@ class Biztech_Authentication_IndexController extends Mage_Core_Controller_Front_
         $storeId = $post_data['storeid'];
         $block = new Mage_Page_Block_Html_Header();
         $logo = $block->getLogoSrc();
-
         $currency_code = Mage::getModel('core/store')->load($storeId)->getCurrentCurrencyCode();
-
+        $product = Mage::getModel('catalog/product')->getCollection()->addStoreFilter($storeId)->addAttributeToSelect('*')->addAttributeToFilter('status', array('eq' => 1))->getFirstItem();
+        $price = $product->getPrice();
+        $price = strip_tags(Mage::app()->getLocale()->currency($currency_code)->toCurrency(sprintf("%01.2f", $price)));
+        $currency_symbol = Mage::app()->getLocale()->currency($currency_code)->getSymbol();
+        $cur_position = strpos($price, $currency_symbol);
+        if ($cur_position == 0) {
+            $prefix = 1;
+        } else {
+            $prefix = 0;
+        }
         $isPos = 0;
-        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos, 'is_Mobileassistantpro' => 0);
+        $resultArr = array('logo' => $logo, 'currency_symbol' => Mage::app()->getLocale()->currency($currency_code)->getSymbol(), 'is_pos' => $isPos, 'is_Mobileassistantpro' => 0, 'prefix' => $prefix);
         $result = Mage::helper('core')->jsonEncode($resultArr);
         return Mage::app()->getResponse()->setBody($result);
     }
