@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <active>true</active>
+            <active>false</active>
             <codePool>local</codePool>
         </Biztech_Mobileassistant>
     </modules>

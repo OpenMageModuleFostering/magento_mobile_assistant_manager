@@ -37,7 +37,7 @@
                         'store_id'      => $order->getStoreId(),
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
-                        'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
+                        'order_date'    => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
                         'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
                         'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                     );
@@ -106,7 +106,7 @@
                         'store_id'      => $order->getStoreId(),
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
-                        'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
+                        'order_date'    => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
                         'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
                         'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                     );
@@ -137,7 +137,7 @@
                     'entity_id'    => $order->getEntityId(),
                     'increment_id' => $order->getIncrementId(),
                     'status'       => $order->getStatus(),
-                    'order_date'   => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
+                    'order_date'   => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
                     'total_qty'    => $order->getTotalQtyOrdered(),
                     'grand_total'  => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
                     'sub_total'    => Mage::helper('mobileassistant')->getPrice($order->getSubtotal()),

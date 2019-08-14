@@ -23,6 +23,15 @@
 
         }
 
+        public function getActualOrderDate($updated_date)
+        {
+            $date          = Mage::app()->getLocale()->date(strtotime($updated_date));
+            $timestamp     = $date->get(Zend_Date::TIMESTAMP) + $date->get(Zend_Date::TIMEZONE_SECS);
+            $updated_date  = date("Y-m-d H:i:s", $timestamp);
+            return $updated_date;
+
+        }
+
         public function isEnable()
         {
             return Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled');

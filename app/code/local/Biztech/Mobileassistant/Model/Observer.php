@@ -5,7 +5,11 @@
         private static $_handleCustomerFirstRegisterNotificationCounter = 1;
         public function sales_order_save_after(Varien_Event_Observer $observer)
         {  
-                if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+            if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+
+                $action = Mage::app()->getFrontController()->getAction();
+                if ($action->getFullActionName() == 'checkout_onepage_saveOrder')
+                {
                     if (self::$_handleCustomerFirstOrderCounter > 1) {
                         return $this;
                     }
@@ -24,6 +28,7 @@
                         );
                     }
                 }
+            }
         }
 
         public function customerRegisterNotification(Varien_Event_Observer $observer){
