@@ -138,20 +138,4 @@ class Biztech_Mobileassistant_Model_Observer {
         }
     }
 
-    public function reviewNotification(Varien_Event_Observer $observer) {
-        $object = $observer->getEvent()->getObject();
-        $statusId = $object->getStatusId();
-        $action = Mage::app()->getFrontController()->getAction();
-        if ($action->getFullActionName() == 'review_product_post') {
-            if ($statusId) {
-                $data = array();
-                $data['status'] = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification');
-                $statuses = explode(",", $data['status']);
-                if (in_array('review_notification', $statuses)) {
-                    $result = Mage::helper('mobileassistant')->pushNotification('review', $statusId);
-                }
-            }
-        }
-    }
-
 }
