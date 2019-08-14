@@ -152,7 +152,31 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
             $lifeTimeSales = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getLifetime(), 2)));
             $averageOrder = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getAverage(), 2)));
 
-            $orderTotalResultArr = array('dashboard_result' => array('ordertotalbydate' => $orderTotalByDate, 'ordergrandtotal' => $orderGrandTotal, 'totalordercount' => $total_count, 'lifetimesales' => $lifeTimeSales, 'averageorder' => $averageOrder));
+            if ($type_id == 7) {
+                $avg_order_count = $total_count / 7;
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / 7;
+            } elseif ($type_id == 30) {
+                $avg_order_count = $total_count / 30;
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / 30;
+            } elseif ($type_id == 90) {
+                $avg_order_count = $total_count / 90;
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / 90;
+            } else if ($type_id == 24) {
+                $avg_order_count = $total_count / 24;
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / 24;
+            } else if ($type_id == 'month') {
+                $avg_order_count = $total_count / count($dates);
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / count($dates);
+            } else if ($type_id == 'year') {
+                $avg_order_count = $total_count / count($months);
+                $avg_ordergrandtotal = (array_sum($orderTotalByDate)) / count($months);
+            }
+
+            $avg_order_count = number_format($avg_order_count, 2, '.', ',');
+            $avg_ordergrandtotal = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency($avg_ordergrandtotal));
+
+
+            $orderTotalResultArr = array('dashboard_result' => array('ordertotalbydate' => $orderTotalByDate, 'ordergrandtotal' => $orderGrandTotal, 'totalordercount' => $total_count, 'lifetimesales' => $lifeTimeSales, 'averageorder' => $averageOrder, 'avg_order_count' => $avg_order_count, 'avg_order_grandtotal' => $avg_ordergrandtotal));
             $orderDashboardResult = Mage::helper('core')->jsonEncode($orderTotalResultArr);
             return Mage::app()->getResponse()->setBody($orderDashboardResult);
         } else {

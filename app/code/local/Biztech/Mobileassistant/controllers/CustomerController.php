@@ -48,7 +48,7 @@ class Biztech_Mobileassistant_CustomerController extends Mage_Core_Controller_Fr
                     $min_fetch_customer = $post_data['min_fetch_customer'];
                 }
                 $last_updated = Mage::helper('mobileassistant')->getActualDate($post_data['last_updated']);
-                $customers->getSelect()->where("(e.entity_id BETWEEN '" . $min_fetch_customer . "'AND '" . $last_fetch_customer . "' AND updated_at > '" . $last_updated . "') OR e.entity_id >'" . $last_fetch_customer . "'");
+                $customers->getSelect()->where("(e.entity_id BETWEEN '" . $min_fetch_customer . "'AND '" . $last_fetch_customer  . "') OR e.entity_id >'" . $last_fetch_customer . "'");
             }
 
             $customers->getSelect()->limit($limit);

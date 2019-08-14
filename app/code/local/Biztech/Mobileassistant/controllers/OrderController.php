@@ -264,7 +264,10 @@ class Biztech_Mobileassistant_OrderController extends Mage_Core_Controller_Front
                 'shipping_address' => $shipping_address_data,
                 'payment_info' => $payment_info,
                 'shipping_info' => $shipping_info,
-                'product_detail' => $products_detail
+                'product_detail' => $products_detail,
+                'is_invoice' => $order->canInvoice(),
+                'is_cancel' => $order->canCancel(),
+                'is_email' => !$order->isCanceled()
             );
             $orderDetailResultArr = array('orderlistdata' => $full_order_detail);
             $orderDetailResult = Mage::helper('core')->jsonEncode($orderDetailResultArr);

@@ -55,7 +55,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                 if (isset($post_data['last_updated'])) {
                     $last_updated = $post_data['last_updated'];
                 }
-                $products->getSelect()->where("(entity_id BETWEEN '" . $min_fetch_product . "'AND '" . $last_fetch_product . "' AND updated_at > '" . $last_updated . "') OR entity_id >'" . $last_fetch_product . "'");
+                $products->getSelect()->where("(entity_id BETWEEN '" . $min_fetch_product . "'AND '" . $last_fetch_product . "') OR entity_id >'" . $last_fetch_product . "'");
             }
 
             $products->getSelect()->limit($limit);
@@ -104,12 +104,14 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
             $associated_products_list = '';
             $associated_products_details = '';
             $images = '';
+
             if (isset($post_data['session'])) {
                 $sessionId = $post_data['session'];
             }
 
             if (!$sessionId || $sessionId == NULL) {
-                
+                echo $this->__("The Login has expired. Please try log in again.");
+                return false;
             }
             try {
                 if (isset($post_data['storeid'])) {
@@ -136,9 +138,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
 
                 $pro_status = $product_data->getStatus();
                 $pro_qty = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
-                if ($pro_qty < 0 || $product_data->getIsInStock() == 0) {
-                    $pro_qty = 'Out of Stock';
-                }
+                
                 $_images = $product_data->getMediaGalleryImages();
                 if ($_images) {
                     foreach ($_images as $_image) {
@@ -166,9 +166,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                     } else {
                         $status = 'Disabled';
                     }
-                    if ($qty == 0 || $associated_product->getIsInStock() == 0) {
-                        $qty = 'Out of Stock';
-                    }
+                    
                     $associated_products_details[] = array(
                         'id' => $associated_product->getId(),
                         'sku' => $associated_product->getSku()
@@ -180,12 +178,10 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                         'name' => $associated_product->getName(),
                         'status' => $status,
                         'qty' => $qty,
-                        'price' => Mage::helper('mobileassistant')->getPrice($associated_product->getPrice(), $storeId),
+                        'is_in_stock' => $associated_product->getIsInStock(),
+                        'price' => Mage::helper('mobileassistant')->getPrice($associated_product->getPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
                     );
                 }
-
-
-
 
                 $product_details[] = array(
                     'id' => $product_data->getId(),
@@ -193,10 +189,11 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                     'name' => $product_data->getName(),
                     'status' => $pro_status,
                     'qty' => $pro_qty,
-                    'price' => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(), $storeId),
-                    'desc' => $product_data->getDescription(),
+                    'is_in_stock' => $product_data->getIsInStock(),
+                    'price' => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
+                    'desc' => $product_data->getShortDescription(),
                     'type' => $product_data->getTypeId(),
-                    'special_price' => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice(), $storeId),
+                    'special_price' => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
                     'image' => ($product_data->getImage()) ? Mage::helper('catalog/image')->init($product_data, 'image', $product_data->getImage())->resize(300, 330)->keepAspectRatio(true)->constrainOnly(true)->__toString() : 'N/A',
                     'associated_skus' => $associated_products_details,
                     'all_images' => $images,
@@ -301,7 +298,7 @@ class Biztech_Mobileassistant_ProductController extends Mage_Core_Controller_Fro
                         'name' => $product_data->getName(),
                         'status' => $status,
                         'qty' => $qty,
-                        'price' => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(), $storeId),
+                        'price' => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(), $storeId, Mage::app()->getStore()->getCurrentCurrencyCode()),
                         'type' => $product->getTypeId(),
                         'image' => ($product_data->getImage()) ? Mage::helper('catalog/image')->init($product, 'image', $product_data->getImage())->resize(300, 330)->keepAspectRatio(true)->constrainOnly(true)->__toString() : 'N/A',
                     );

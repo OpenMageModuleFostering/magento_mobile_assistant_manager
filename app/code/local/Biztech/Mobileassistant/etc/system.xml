@@ -16,6 +16,35 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
+                <activation translate="label">
+                    <label>Magento Mobile Admin Activation</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <key>
+                            <label>Activation Key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>required-entry</validate>
+                        </key>
+                        <websites translate="label">
+                            <label>Select Websites</label>
+                            <frontend_type>checkbox</frontend_type>
+                            <source_model>adminhtml/system_config_source_website</source_model>
+                            <frontend_model>mobileassistant/adminhtml_config_form_renderer_website</frontend_model>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </websites>
+                    </fields>
+                </activation>
                 <mobileassistant_general translate="label">
                     <label>General</label>
                     <frontend_type>text</frontend_type>
@@ -28,13 +57,14 @@
                             <label>Enabled</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <frontend_model>mobileassistant/adminhtml_enabledisable</frontend_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                             <comment>Select Yes to enable this feature.</comment>
                         </enabled>
-                         <notification translate="label">
+                        <notification translate="label">
                             <label>Send Notification For</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>mobileassistant/system_config_notification</source_model>
@@ -82,11 +112,30 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enter your message which will be received on the Mobile app whenever a product qty is lower than or equal to minimum qty.</comment>
                         </product_inventory_notification_msg>
+                        <product_review_notification_msg translate="label">
+                            <label>Product Review Notification Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter your message which will be received on the Mobile app whenever a new product review is added.</comment>
+                        </product_review_notification_msg>
+                        <base_url translate="label">
+                            <label>Store Base Url</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>mobileassistant/config_baseurl</frontend_model>    
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Diaplay Store Base Url.</comment>
+                        </base_url>
                         <barcode_for_url translate="label">
                             <label>Store Base Url QRcode</label>
                             <frontend_type>text</frontend_type>
                             <frontend_model>mobileassistant/config_barcodeurl</frontend_model>    
-                            <sort_order>7</sort_order>
+                            <sort_order>9</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>

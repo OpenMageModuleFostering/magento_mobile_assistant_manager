@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <version>0.2.3</version>
+            <version>0.2.4</version>
         </Biztech_Mobileassistant>
     </modules>
     <frontend>
@@ -30,6 +30,24 @@
                 </mobileassistant>
             </updates>
         </layout>
+        <events>
+            <sales_order_save_after>
+                <observers>
+                    <mobileassistant>
+                        <class>mobileassistant/observer</class>
+                        <method>sales_order_save_after</method>
+                    </mobileassistant>
+                </observers>
+            </sales_order_save_after>
+            <review_save_after>
+                <observers>
+                    <mobileassistant>
+                        <class>mobileassistant/observer</class>
+                        <method>reviewNotification</method>
+                    </mobileassistant>
+                </observers>
+            </review_save_after>
+        </events>
     </frontend>
     <admin>
         <routers>
@@ -124,14 +142,15 @@
             </mobileassistant>
         </helpers>
         <events>
-            <sales_order_save_after>
+            <admin_system_config_changed_section_mobileassistant>
                 <observers>
-                    <mobileassistant>
+                    <magemobcart>
+                        <type>model</type>
                         <class>mobileassistant/observer</class>
-                        <method>sales_order_save_after</method>
-                    </mobileassistant>
+                        <method>checkKey</method>
+                    </magemobcart>
                 </observers>
-            </sales_order_save_after>
+            </admin_system_config_changed_section_mobileassistant>
             <customer_register_success>
                 <observers>
                     <mobileassistant_customer_notification_checkout>

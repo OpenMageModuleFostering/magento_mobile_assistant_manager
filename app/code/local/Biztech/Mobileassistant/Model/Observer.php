@@ -5,6 +5,11 @@ class Biztech_Mobileassistant_Model_Observer {
     private static $_handleCustomerFirstOrderCounter = 1;
     private static $_handleCustomerFirstRegisterNotificationCounter = 1;
 
+    public function checkKey($observer) {
+        $key = Mage::getStoreConfig('mobileassistant/activation/key');
+        Mage::helper('mobileassistant')->checkKey($key);
+    }
+
     /* inventory status-starts */
 
     public function catalogInventorySave(Varien_Event_Observer $observer) {
@@ -81,7 +86,7 @@ class Biztech_Mobileassistant_Model_Observer {
                     return $this;
                 }
                 self::$_handleCustomerFirstOrderCounter++;
-                
+
                 $data = array();
                 $data['status'] = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification');
                 $statuses = explode(",", $data['status']);
@@ -114,7 +119,7 @@ class Biztech_Mobileassistant_Model_Observer {
                 $data['status'] = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification');
                 $statuses = explode(",", $data['status']);
                 if (in_array('customer_notification', $statuses)) {
-                     $result = Mage::helper('mobileassistant')->pushNotification('customer', $customer_id);
+                    $result = Mage::helper('mobileassistant')->pushNotification('customer', $customer_id);
                 }
             }
         }
@@ -125,11 +130,27 @@ class Biztech_Mobileassistant_Model_Observer {
         if ($customer) {
             $customer_id = $customer->getId();
             $data = array();
+            $data['status'] = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification');
+            $statuses = explode(",", $data['status']);
+            if (in_array('customer_notification', $statuses)) {
+                $result = Mage::helper('mobileassistant')->pushNotification('customer', $customer_id);
+            }
+        }
+    }
+
+    public function reviewNotification(Varien_Event_Observer $observer) {
+        $object = $observer->getEvent()->getObject();
+        $statusId = $object->getStatusId();
+        $action = Mage::app()->getFrontController()->getAction();
+        if ($action->getFullActionName() == 'review_product_post') {
+            if ($statusId) {
+                $data = array();
                 $data['status'] = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification');
                 $statuses = explode(",", $data['status']);
-                if (in_array('customer_notification', $statuses)) {
-                    $result = Mage::helper('mobileassistant')->pushNotification('customer', $customer_id);
+                if (in_array('review_notification', $statuses)) {
+                    $result = Mage::helper('mobileassistant')->pushNotification('review', $statusId);
                 }
+            }
         }
     }
 
