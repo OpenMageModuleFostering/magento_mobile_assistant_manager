@@ -12,7 +12,9 @@
         `username` varchar(255) NOT NULL default '',
         `apikey` varchar(40) NOT NULL default '',
         `device_token` varchar(255) NOT NULL default '',
+        `device_type` varchar(255) NOT NULL default '',
         `notification_flag` smallint(11) NOT NULL default '1',
+        `is_logout` smallint(11) NOT NULL default '0',
         PRIMARY KEY (`user_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

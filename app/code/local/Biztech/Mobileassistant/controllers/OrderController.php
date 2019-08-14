@@ -23,7 +23,7 @@
                 if($is_refresh == 1){
                     $last_fetch_order  = $post_data['last_fetch_order'];
                     $min_fetch_order   = $post_data['min_fetch_order'];
-                    $last_updated      = $post_data['last_updated'];
+                    $last_updated      = Mage::helper('mobileassistant')->getActualDate($post_data['last_updated']);
 
                     $orderCollection->getSelect()->where("(entity_id BETWEEN '".$min_fetch_order."'AND '".$last_fetch_order ."' AND updated_at > '".$last_updated."') OR entity_id >'".$last_fetch_order."'");
                 }
@@ -38,7 +38,7 @@
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
                         'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
-                        'grand_total'   => strip_tags(Mage::helper('core')->currency($order->getGrandTotal())),
+                        'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
                         'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                     );
                 }
@@ -107,7 +107,7 @@
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
                         'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
-                        'grand_total'   => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($order->getGrandTotal()))),
+                        'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
                         'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                     );
                 }
@@ -139,7 +139,10 @@
                     'status'       => $order->getStatus(),
                     'order_date'   => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
                     'total_qty'    => $order->getTotalQtyOrdered(),
-                    'grand_total'  => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($order->getGrandTotal())))
+                    'grand_total'  => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
+                    'sub_total'    => Mage::helper('mobileassistant')->getPrice($order->getSubtotal()),
+                    'discount'     => Mage::helper('mobileassistant')->getPrice($order->getDiscountAmount()),
+                    'tax'          => Mage::helper('mobileassistant')->getPrice($order->getTax())
                 );
 
                 $customer_id   = $order->getCustomerId();
@@ -162,15 +165,17 @@
                     'telephone' => $billing_address->getTelephone()
                 );
                 $shipping_address = $order->getShippingAddress();
-                $shipping_address_data = array(
-                    'name'      => $shipping_address->getFirstname().' '.$shipping_address->getLastname(),
-                    'street'    => $shipping_address->getData('street'),
-                    'city'      => $shipping_address->getCity(),
-                    'region'    => $shipping_address->getRegion(),
-                    'postcode'  => $shipping_address->getPostcode(),
-                    'country'   => Mage::getModel('directory/country')->loadByCode($shipping_address->getCountryId())->getName(),
-                    'telephone' => $shipping_address->getTelephone()
-                );
+                if($shipping_address){
+                    $shipping_address_data = array(
+                        'name'      => $shipping_address->getFirstname().' '.$shipping_address->getLastname(),
+                        'street'    => $shipping_address->getData('street'),
+                        'city'      => $shipping_address->getCity(),
+                        'region'    => $shipping_address->getRegion(),
+                        'postcode'  => $shipping_address->getPostcode(),
+                        'country'   => Mage::getModel('directory/country')->loadByCode($shipping_address->getCountryId())->getName(),
+                        'telephone' => $shipping_address->getTelephone()
+                    );
+                }
 
                 $payment_info = array(
                     'payment_method' => $order->getPayment()->getMethodInstance()->getTitle()
@@ -178,7 +183,7 @@
 
                 $shipping_info = array(
                     'shipping_method' => $order->getShippingDescription(),
-                    'shipping_charge' => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($order->getShippingAmount())))
+                    'shipping_charge' => Mage::helper('mobileassistant')->getPrice($order->getShippingAmount())
                 );
 
                 $products_detail = $this->_orderedProductDetails($order_id);
@@ -205,7 +210,56 @@
         {
             $order = Mage::getModel('sales/order')->load($order_id);
             foreach ($order->getItemsCollection() as $item) {
-                $product = null;
+                $options = $item->getProductOptions();
+                if($item->getProductType() == "downloadable"){
+                    $obj = new Mage_Downloadable_Block_Adminhtml_Sales_Items_Column_Downloadable_Name();
+                    foreach($options['links'] as $links)
+                    {
+
+                        $this->_purchased = Mage::getModel('downloadable/link_purchased')
+                        ->load($order_id, 'order_id');
+                        $purchasedItem = Mage::getModel('downloadable/link_purchased_item')->getCollection()
+                        ->addFieldToFilter('order_item_id', $item->getId());
+                        $this->_purchased->setPurchasedItems($purchasedItem);
+
+                        foreach ($this->_purchased->getPurchasedItems() as $_link){
+                            $links_value[] = $_link->getLinkTitle().'('. $_link->getNumberOfDownloadsUsed() . ' / ' . ($_link->getNumberOfDownloadsBought() ? $_link->getNumberOfDownloadsBought() : Mage::helper('downloadable')->__('U')) .')'; 
+                        }
+
+                        $info = array(array(
+                                'label' => $obj->getLinksTitle(),
+                                'value' => implode(',',$links_value)
+                            ));
+                    }
+
+                }else{
+
+                    $result = array();
+                    if ($options = $item->getProductOptions()) {
+                        if (isset($options['options'])) {
+                            $result = array_merge($result, $options['options']);
+                        }
+                        if (isset($options['additional_options'])) {
+                            $result = array_merge($result, $options['additional_options']);
+                        }
+                        if (!empty($options['attributes_info'])) {
+                            $result = array_merge($options['attributes_info'], $result);
+                        }
+                    }
+
+                    $info = array();
+                    if($result)
+                    {
+                        foreach ($result as $_option){
+                            $info[] = array(
+                                'label' => $_option['label'],
+                                'value' => $_option['value']
+                            );
+                        }
+                    }
+                }
+                $skus = '';
+                $product = Mage::getModel('catalog/product')->load($item->getProductId());
                 if ($item->getParentItem()) continue;
                 if ($_options = $this->_getItemOptions($item)) {
                     $skus = $_options;
@@ -214,10 +268,12 @@
                     'product_id'  => $item->getProductId(),
                     'name'        => $item->getName(),
                     'sku'         => $item->getSku(),
-                    'unit_price'  => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($item->getOriginalPrice()))),
+                    'unit_price'  => Mage::helper('mobileassistant')->getPrice($item->getOriginalPrice()),
                     'ordered_qty' => round($item->getQtyOrdered(), 2),
-                    'row_total'   => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($item->getRowTotal()))),
-                    'options'     => $skus
+                    'row_total'   => Mage::helper('mobileassistant')->getPrice($item->getRowTotal()),
+                    'options'     => $skus ? $skus : '',
+                    'image'       => ($product->getImage())?Mage::helper('catalog/image')->init($product, 'image',$product->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
+                    'attribute_info' => $info ? $info : ''
                 );
             }
             return $products_detail; 
