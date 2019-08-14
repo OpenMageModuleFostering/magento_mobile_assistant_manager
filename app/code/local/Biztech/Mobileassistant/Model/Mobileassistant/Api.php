@@ -10,6 +10,7 @@
                 ->setUsername($data['user'])
                 ->setApikey($data['key'])
                 ->setDeviceToken($data['devicetoken'])
+                ->setDeviceType($data['device_type'])
                 ->setNotificationFlag($data['notification_flag'])
                 ->save();
             }
@@ -19,14 +20,16 @@
                     $user_id = $user->getUserId();
                     $flag    = $user->getNotificationFlag();
                 }
-                if($flag != $data['notification_flag']){
+                if($flag != $data['notification_flag'] || $data['is_logout'] != 1){
                     try {
                         $connection = Mage::getSingleton('core/resource')->getConnection('core_write');
                         $connection->beginTransaction();
                         $fields = array();
                         $fields['notification_flag'] = $data['notification_flag'];
+                        $fields['is_logout'] = $data['is_logout'];
                         $where = $connection->quoteInto('user_id =?', $user_id);
-                        $connection->update('mobileassistant', $fields, $where);
+                        $prefix = Mage::getConfig()->getTablePrefix();
+                        $connection->update($prefix.'mobileassistant', $fields, $where);
                         $connection->commit();
                     } catch (Exception $e){
                         return $e->getMessage();
@@ -46,7 +49,8 @@
                     }
                 }
             }
-            $result = array('success' => $successArr,'stores' => $storeArr);
+            $isPos =  0;
+            $result = array('success' => $successArr,'stores' => $storeArr,'is_pos' => $isPos);
             return $result;
         }
     }

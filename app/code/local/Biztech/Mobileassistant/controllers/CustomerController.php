@@ -7,31 +7,43 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
-                $limit         = $post_data['limit'];
-                $offset        = $post_data['offset'];
-                $new_customers = $post_data['last_fetch_customer'];
-                $customers     = Mage::getModel('customer/customer')->getCollection()->addAttributeToSelect('*')->setOrder('entity_id', 'desc');
+                $limit          =   $post_data['limit'];
+                $offset         =   $post_data['offset'];
+                $new_customers  =   $post_data['last_fetch_customer'];
+                $is_refresh     =   $post_data['is_refresh'];
+                $customers      =   Mage::getModel('customer/customer')->getCollection()->addAttributeToSelect('*')->setOrder('entity_id', 'desc');
 
                 if($offset != null){
                     $customers->addAttributeToFilter('entity_id', array('lt' => $offset));
                 }
-                if($new_customers != null){
-                    $customers->addAttributeToFilter('entity_id', array('gt' => $new_customers));
+
+                if($is_refresh == 1){
+                    $last_fetch_customer  =   $post_data['last_fetch_customer'];
+                    $min_fetch_customer   =   $post_data['min_fetch_customer'];
+                    $last_updated         =   Mage::helper('mobileassistant')->getActualDate($post_data['last_updated']);
+                    $customers->getSelect()->where("(e.entity_id BETWEEN '".$min_fetch_customer."'AND '".$last_fetch_customer ."' AND updated_at > '".$last_updated."') OR e.entity_id >'".$last_fetch_customer."'");
                 }
+
                 $customers->getSelect()->limit($limit);
-                foreach($customers as $customer){
-                    $website_name = Mage::app()->getWebsite($customer->getWebsiteId())->getName();
+                 foreach($customers as $customer){
+                    $billing_address  = Mage::getModel('customer/address')->load($customer->getDefaultBilling());
+                    $shipping_address = Mage::getModel('customer/address')->load($customer->getDefaultShipping());
+
                     $customer_list[] = array(
                         'entity_id'     => $customer->getEntityId(),
-                        'customer_name' => $customer->getFirstname()." ".$customer->getLastname(),
+                        'firstname' => $customer->getFirstname(),
+                        'lastname' => $customer->getLastname(),
                         'email_id'      => $customer->getEmail(),
-                        'website_name'  => $website_name
+                        'telephone'     => $billing_address->getData('telephone'),
+                        'billing_address_id'    => $billing_address->getId(),
+                        'shipping_address_id'   => $shipping_address->getId()
                     );
                 }
-                $customerListResultArr = array('customerlistdata' => $customer_list);
+                $updated_time       = date("Y-m-d H:i:s", Mage::getModel('core/date')->timestamp(time()));
+                $customerListResultArr = array('customerlistdata' => $customer_list,'updated_time' =>$updated_time);
                 $customerListResult    = Mage::helper('core')->jsonEncode($customerListResultArr);
                 return Mage::app()->getResponse()->setBody($customerListResult);
             }else{
@@ -46,56 +58,55 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
                 $customer_id  = $post_data['customer_id'];
                 $customerData = Mage::getModel('customer/customer')->load($customer_id);
 
 
-                $basic_detail = array(
+               $basic_detail = array(
                     'entity_id' => $customerData->getEntityId(),
-                    'name'      => $customerData->getFirstname()." ".$customerData->getLastname(),
+                    'firstname'      => $customerData->getFirstname(),
+                    'lastname'      => $customerData->getLastname(),
                     'email'     => $customerData->getEmail(),
                 );
 
-                $billing_address  = Mage::getModel('customer/address')->load($customerData->getDefaultBilling());
-                $shipping_address = Mage::getModel('customer/address')->load($customerData->getDefaultShipping());
+               foreach ($customerData->getAddresses() as $address) {
+                    $billing_type = 0;
+                    $shipping_type = 0;
+                    $billing_country_name  = null;
 
-                $billing_country_name  = null;
-                $shipping_country_name = null;
+                    if($address->getCountryId()){
+                        $billing_country_name = Mage::getModel('directory/country')->loadByCode($address->getCountryId())->getName();
+                    }
 
-                if($billing_address->getCountryId()){
-                    $billing_country_name = Mage::getModel('directory/country')->loadByCode($billing_address->getCountryId())->getName();
+                    if ($address->getId()==$customerData->getDefaultBilling())
+                        $billing_type=1;
+
+                    if ($address->getId()==$customerData->getDefaultShipping())
+                        $shipping_type=1;
+
+                    $billing_address_detail[] = array(
+                        'firstname'     => $address->getFirstname(),
+                        'lastname'      => $address->getLastname(),
+                        'street'        => $address->getData('street'),
+                        'city'          => $address->getCity(),
+                        'region_id'     => $address->getRegionId() ? $address->getRegionId() : '',
+                        'region'        => $address->getRegion(),
+                        'postcode'      => $address->getPostcode(),
+                        'country'       => $billing_country_name,
+                        'country_id'    => $address->getCountryId(),
+                        'telephone'     => $address->getTelephone(),
+                        'address_id'    => $address->getId(),
+                        'billing_type'  => $billing_type,
+                        'shipping_type' => $shipping_type
+                    );
                 }
-                if($shipping_address->getCountryId()){
-                    $shipping_country_name = Mage::getModel('directory/country')->loadByCode($shipping_address->getCountryId())->getName();
-                }
-
-                $billing_address_detail = array(
-                    'name'      => $billing_address->getFirstname()." ".$billing_address->getLastname(),
-                    'street'    => $billing_address->getData('street'),
-                    'city'      => $billing_address->getCity(),
-                    'region'    => $billing_address->getRegion(),
-                    'postcode'  => $billing_address->getPostcode(),
-                    'country'   => $billing_country_name,
-                    'telephone' => $billing_address->getTelephone()
-                );
-
-                $shipping_address_detail = array(
-                    'name'      => $shipping_address->getFirstname()." ".$shipping_address->getLastname(),
-                    'street'    => $shipping_address->getData('street'),
-                    'city'      => $shipping_address->getCity(),
-                    'region'    => $shipping_address->getRegion(),
-                    'postcode'  => $shipping_address->getPostcode(),
-                    'country'   => $shipping_country_name,
-                    'telephone' => $shipping_address->getTelephone()
-                );
 
                 $customer_detail = array(
                     'basic_details'    => $basic_detail,
-                    'billing_address'  => $billing_address_detail,
-                    'shipping_address' => $shipping_address_detail
+                    'address'  => $billing_address_detail,
                 );
                 $order_detail = $this->_getCustomerOrderList($customer_id);
 
@@ -123,7 +134,7 @@
                     'customer_name' => $order->getBillingName(),
                     'status'        => $order->getStatus(),
                     'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
-                    'grand_total'   => strip_tags(Mage::helper('core')->currency(Mage::helper('mobileassistant')->getPriceFormat($order->getGrandTotal()))),
+                    'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
                     'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                 );
             }
@@ -137,7 +148,7 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
                 $search    = $post_data['search_content'];
@@ -162,11 +173,18 @@
                 }
 
 
-                foreach($customers as $customer){
+                 foreach($customers as $customer){
+                    $billing_address  = Mage::getModel('customer/address')->load($customer->getDefaultBilling());
+                    $shipping_address = Mage::getModel('customer/address')->load($customer->getDefaultShipping());
+
                     $customer_list[] = array(
                         'entity_id'     => $customer->getEntityId(),
-                        'customer_name' => $customer->getFirstname()." ".$customer->getLastname(),
-                        'email_id'      => $customer->getEmail()
+                        'firstname' => $customer->getFirstname(),
+                        'lastname' => $customer->getLastname(),
+                        'email_id'      => $customer->getEmail(),
+                        'telephone'     => $billing_address->getData('telephone'),
+                        'billing_address_id'    => $billing_address->getId(),
+                        'shipping_address_id'   => $shipping_address->getId(),
                     );
                 }
                 $customerListResultArr = array('customerlistdata' => $customer_list);

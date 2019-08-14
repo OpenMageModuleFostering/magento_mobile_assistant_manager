@@ -2,45 +2,111 @@
     class Biztech_Mobileassistant_Model_Observer
     {
         private static $_handleCustomerFirstOrderCounter = 1;
+        private static $_handleCustomerFirstRegisterNotificationCounter = 1;
+
+        /*inventory status-starts*/
+        public function catalogInventorySave(Varien_Event_Observer $observer)
+        {            
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+                $event = $observer->getEvent();
+                $_item = $event->getItem();
+                $params = array();
+                $params['product_id'] = $_item->getProductId();
+                $params['name'] = Mage::getModel('catalog/product')->load($params['product_id'])->getName();
+                $params['qty'] = $_item->getQty();
+                $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                if($params['qty'] <= $minQty){
+                    Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                }
+            }
+        }
+
+
+        public function subtractQuoteInventory(Varien_Event_Observer $observer)
+        {             
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+                $quote = $observer->getEvent()->getQuote();
+                foreach ($quote->getAllItems() as $item) {
+                    $params = array();
+                    $params['product_id'] = $item->getProductId();
+                    $params['name'] = $item->getName();
+                    $params['qty'] = $item->getProduct()->getStockItem()->getQty();
+                    $params['qty_change'] = $item->getTotalQty();
+                    $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                    if(($params['qty']-$params['qty_change']) <= $minQty){
+                        Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                    }
+
+                }
+            }
+        }
+
+        public function revertQuoteInventory(Varien_Event_Observer $observer)
+        {   
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+                $quote = $observer->getEvent()->getQuote();
+                foreach ($quote->getAllItems() as $item) {
+                    $params = array();
+                    $params['product_id'] = $item->getProductId();
+                    $params['name'] = $item->getName();
+                    $params['qty'] = $item->getProduct()->getStockItem()->getQty();
+                    $params['qty_change'] = $item->getTotalQty();
+                    $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                    if(($params['qty']+$params['qty_change']) <= $minQty){
+                        Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                    }
+                }
+            }
+        }
+
+        /*inventory status- ends*/
+
+
         public function sales_order_save_after(Varien_Event_Observer $observer)
         {  
-            if (Mage::app()->getRequest()->getControllerName()=='onepage'){
-                if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+            if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+
+                $action = Mage::app()->getFrontController()->getAction();
+                if ($action->getFullActionName() == 'checkout_onepage_saveOrder')
+                {
                     if (self::$_handleCustomerFirstOrderCounter > 1) {
                         return $this;
                     }
                     self::$_handleCustomerFirstOrderCounter++;
-                    $collections = Mage::getModel("mobileassistant/mobileassistant")->getCollection()->addFieldToFilter('notification_flag',Array('eq'=>1));
-                    $passphrase  = 'magento123';
-                    $message     = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification_msg');
-                    if($message == null){
-                        $message     = Mage::helper('mobileassistant')->__('Placed new order in your store..!');
+                    $result = Mage::helper('mobileassistant')->pushNotification('order',$observer->getEvent()->getOrder()->getId());
+
+                    $quoteId = $observer->getEvent()->getOrder()->getData('quote_id');
+                    $quote = Mage::getModel('sales/quote')->load($quoteId);
+                    $method = $quote->getCheckoutMethod(true);
+
+                    if ($method=='register'){
+                        Mage::dispatchEvent('customer_register_checkout',
+                            array(
+                                'customer' => $observer->getEvent()->getOrder()->getCustomer()
+                            )
+                        );
                     }
-                    $apnsCert = Mage::getBaseDir('lib'). DS. "mobileassistant/ck.pem";
-                    $ctx      = stream_context_create();
-                    stream_context_set_option($ctx, 'ssl', 'local_cert', $apnsCert);
-                    stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);      
-                    $flags = STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT;
-
-                    $fp = stream_socket_client('ssl://gateway.push.apple.com:2195', $err,$errstr, 60, $flags, $ctx);
-
-
-
-                    if ($fp){
-                        foreach($collections as $collection){
-                            $deviceToken = $collection->getDeviceToken();
-                            $body['aps'] = array(
-                                'alert' => $message,
-                                'sound' => 'default'
-                            );
-                            $payload = json_encode($body);
-                            $msg = chr(0) . pack('n', 32) . pack('H*', $deviceToken) . pack('n', strlen($payload)) . $payload;
-                            $result = fwrite($fp, $msg, strlen($msg));
-                        }
-                        fclose($fp);
-                    }
-                    return true;
                 }
             }
+        }
+
+        public function customerRegisterNotification(Varien_Event_Observer $observer){
+            if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+                $customer               =   $observer->getEvent()->getCustomer();
+                if ($customer){
+                    $customer_id        =   $customer->getId();
+                }    
+                if ($customer_id){
+                    $result = Mage::helper('mobileassistant')->pushNotification('customer',$customer_id);
+                }
+            }            
+        }
+
+        public function customerRegisterNotificationCheckout(Varien_Event_Observer $observer){
+            $customer = $observer->getEvent()->getCustomer();
+            if ($customer){
+                $customer_id        =   $customer->getId();
+                $result = Mage::helper('mobileassistant')->pushNotification('customer',$customer_id);
+            }    
         }
     }

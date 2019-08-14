@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <!-- 
 /**
- * @category   Biztech
- * @package    Biztech_Mobileassistant
- * @author     ModuleCreator
- * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- */
- -->
+* @category   Biztech
+* @package    Biztech_Mobileassistant
+* @author     ModuleCreator
+* @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+*/
+-->
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <version>0.1.1</version>
+            <version>0.1.10</version>
         </Biztech_Mobileassistant>
     </modules>
     <frontend>
@@ -33,27 +33,27 @@
     </frontend>
     <admin>
         <routers>
-			<mobileassistant>
-				<use>admin</use>
-				<args>
-					<module>Biztech_Mobileassistant</module>
-					<frontName>mobileassistant</frontName>
-				</args>
-			</mobileassistant>
+            <mobileassistant>
+                <use>admin</use>
+                <args>
+                    <module>Biztech_Mobileassistant</module>
+                    <frontName>mobileassistant</frontName>
+                </args>
+            </mobileassistant>
         </routers>
     </admin>
     <adminhtml>
-		<acl>
-			<resources>
-				<all>
-					<title>Allow Everything</title>
-				</all>
-				<admin>
-					<children>
-						<Biztech_Mobileassistant>
-							<title>Mobileassistant Module</title>
-							<sort_order>10</sort_order>
-						</Biztech_Mobileassistant>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <Biztech_Mobileassistant>
+                            <title>Mobileassistant Module</title>
+                            <sort_order>10</sort_order>
+                        </Biztech_Mobileassistant>
                         <system>
                             <children>
                                 <config>
@@ -65,17 +65,18 @@
                                 </config>
                             </children>
                         </system>
-					</children>
-				</admin>
-			</resources>
-		</acl>
-		<layout>
-			<updates>
-				<mobileassistant>
-					<file>mobileassistant.xml</file>
-				</mobileassistant>
-			</updates>
-		</layout>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <layout>
+            <updates>
+                <mobileassistant>
+                    <file>mobileassistant.xml</file>
+                </mobileassistant>
+            </updates>
+        </layout>
+
     </adminhtml>   
     <global>
         <models>
@@ -122,7 +123,7 @@
                 <class>Biztech_Mobileassistant_Helper</class>
             </mobileassistant>
         </helpers>
-          <events>
+        <events>
             <sales_order_save_after>
                 <observers>
                     <mobileassistant>
@@ -131,6 +132,51 @@
                     </mobileassistant>
                 </observers>
             </sales_order_save_after>
+            <customer_register_success>
+                <observers>
+                    <mobileassistant_customer_notification_checkout>
+                        <class>mobileassistant/observer</class>
+                        <method>customerRegisterNotification</method>
+                    </mobileassistant_customer_notification_checkout>
+                </observers>
+            </customer_register_success>
+            <customer_register_checkout>
+                <observers>
+                    <customer_register_checkout>
+                        <class>mobileassistant/observer</class>
+                        <method>customerRegisterNotificationCheckout</method>
+                    </customer_register_checkout>
+                </observers>
+            </customer_register_checkout>
+            
+            <!--inventory status:starts-->
+            <cataloginventory_stock_item_save_commit_after>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>catalogInventorySave</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </cataloginventory_stock_item_save_commit_after>
+
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>subtractQuoteInventory</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </sales_model_service_quote_submit_before>
+
+            <sales_model_service_quote_submit_failure>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>revertQuoteInventory</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </sales_model_service_quote_submit_failure>
+            <!--inventory status:ends-->
         </events>
     </global>
 </config>
