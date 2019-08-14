@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config>
+    <api>
+        <resources>
+            <mobileassistant translate="title" module="biztech_mobileassistant">
+                <title>Mobileassistant Api</title>
+                <model>mobileassistant/mobileassistant_api</model>
+                <methods>
+                    <create translate="title" module="biztech_mobileassistant">
+                        <title>Create</title>
+                    </create>
+                </methods>
+            </mobileassistant>
+        </resources>
+    </api>
+</config>

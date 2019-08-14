@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package>
+    <name>magento_mobile_assistant_manager</name>
+    <version>0.1.0</version>
+    <stability>stable</stability>
+    <license uri="http://opensource.org/licenses/osl-3.0.php">OSL v3.0</license>
+    <channel>community</channel>
+    <extends/>
+    <summary>Magento Mobile Assistant Extension allows online merchants to view all the details of their online store on their iOS devices (iPhone, iPad or iPod). </summary>
+    <description>Magento Mobile Assistant Extension allows online merchants to view all the details of their online store on their iOS devices (iPhone, iPad or iPod). The extension helps store owners to view stores order details, product details, customers details anywhere and anytime with help of their iOS devices. This extension eliminates the need to login from PC to get detailed information of the happenings in online stores.&#xD;
+Mobile Assistant Extension integrates with your online store and delivers the key details to your iOS device. You can easily navigate through the orders, products, customers and sales report from your handheld device and monitor the performance of your store wherever you go. &#xD;
+Features of Magento Assistant Extension:&#xD;
+&#x2022;	Easy to use and quick to install&#xD;
+&#x2022;	Supported by Multiple store websites&#xD;
+&#x2022;	Filters order, product, and sales with respect to a particular store&#xD;
+&#x2022;	Displays order details with status &#x2013; Successfully delivered, pending, back order etc.&#xD;
+&#x2022;	Displays product list and products details&#xD;
+&#x2022;	Displays customer list, details, address and shipping address&#xD;
+&#x2022;	Sends notification to the store merchant as soon as a new order is placed with its details&#xD;
+&#x2022;	Customized dashboard that displays store wise sales graphs that can be filtered day&#x2019;s wise &#x2013; 7 days, 30 days or 90 days&#xD;
+Note:  Apple notification working  on PHP 5.3.0 or later.&#xD;
+&#xD;
+To ensure smooth working of this extension you need to download this extension in your website and also download Magento Mobile Manager Version 2.0 on your iOS device.&#xD;
+&#xD;
+Application Download Link:&#xD;
+https://itunes.apple.com/us/app/magentomobilemanager/id695074519?mt=8&amp;ign-mpt=uo%3D4&#xD;
+</description>
+    <notes>-New Realse</notes>
+    <authors><author><name>Biztech</name><user>biztechcon</user><email>sales@biztechconsultancy.com</email></author></authors>
+    <date>2013-10-12</date>
+    <time>07:06:53</time>
+    <contents><target name="mageetc"><dir name="modules"><file name="Biztech_Mobileassistant.xml" hash="14d6d04686f97fab6371920fdf3baf7e"/></dir></target><target name="magelocal"><dir name="Biztech"><dir name="Mobileassistant"><dir name="Helper"><file name="Data.php" hash="0d39e75ee4898ac28bb62a35f71066a2"/></dir><dir name="Model"><dir name="Mobileassistant"><file name="Api.php" hash="ef403d19cf7ca3245192539de4b21632"/></dir><file name="Mobileassistant.php" hash="3f221d0fa184e94ec3004bb0256abbf3"/><dir name="Mysql4"><dir name="Mobileassistant"><file name="Collection.php" hash="373ce57310145f3d007952e8c7beffbf"/></dir><file name="Mobileassistant.php" hash="3ef12554d281a2fa7ef47943763be76d"/></dir><file name="Observer.php" hash="253379643a1069e8e9c8dfc35742a125"/></dir><dir name="controllers"><file name="CustomerController.php" hash="e64dea09069dc4a69c2981c5aad4c64c"/><file name="DashboardController.php" hash="d5c9f6c0686ae25966af73e51fcb4c04"/><file name="IndexController.php" hash="3cd73cb5c50dde854b2f6c18986df455"/><file name="OrderController.php" hash="60ee4ece453aa5cd57a15bd000c7478b"/><file name="ProductController.php" hash="8bc40724a410d1e2911ccde5b61f8e8f"/></dir><dir name="etc"><file name="api.xml" hash="f7d93508ce53982484f0d1f9ab3a17cd"/><file name="config.xml" hash="699bdaa626c8438e536d65fbf952f0cf"/><file name="system.xml" hash="5aeda6044c3ae5e44c51db392f5e0ddc"/></dir><dir name="sql"><dir name="mobileassistant_setup"><file name="mysql4-install-0.1.0.php" hash="c25eff9c480cc82b6edfaef1e87e27a7"/></dir></dir></dir></dir></target><target name="mage"><dir name="lib"><dir name="mobileassistant"><file name="magentoKeys.pem" hash="ccd8fbed4603b261afd52c68b29a18d9"/></dir></dir></target></contents>
+    <compatible/>
+    <dependencies><required><php><min>5.3.0</min><max>6.0.0</max></php></required></dependencies>
+</package>
