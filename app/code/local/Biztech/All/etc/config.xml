@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <!-- 
 /**
-* @category   Biztech
-* @package    Biztech_All
-* @author     ModuleCreator
-* @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
-*/
--->
+ * @category   Biztech
+ * @package    Biztech_All
+ * @author     ModuleCreator
+ * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+ -->
 <config>
     <modules>
         <Biztech_All>
-            <version>0.1.1</version>
+            <version>0.1.0</version>
         </Biztech_All>
     </modules>
     <frontend>
@@ -23,38 +23,58 @@
                 </args>
             </all>
         </routers>
+        <!--<layout>
+            <updates>
+                <all>
+                    <file>all.xml</file>
+                </all>
+            </updates>
+        </layout>-->
     </frontend>
     <admin>
         <routers>
-            <adminhtml>
-                <args>
-                    <module>
-                        <all>Biztech_All_Adminhtml</all>
-                    </module>
-                </args>
-            </adminhtml>
+			<all>
+				<use>admin</use>
+				<args>
+					<module>Biztech_All</module>
+					<frontName>all</frontName>
+				</args>
+			</all>
         </routers>
     </admin>
     <adminhtml>
-        <acl>
-            <resources>
-                <all>
-                    <title>Allow Everything</title>
-                </all>
-                <admin>
-                    <children>
-                        <Biztech_All>
-                            <title>All Module</title>
-                            <sort_order>10</sort_order>
-                        </Biztech_All>
-                    </children>
-                </admin>
-            </resources>
-        </acl>
+		<!--<menu>
+			<all module="all">
+				<title>All</title>
+				<sort_order>71</sort_order>               
+				<children>
+					<items module="all">
+						<title>Manage Items</title>
+						<sort_order>0</sort_order>
+						<action>all/adminhtml_all</action>
+					</items>
+				</children>
+			</all>
+		</menu> -->
+		<acl>
+			<resources>
+				<all>
+					<title>Allow Everything</title>
+				</all>
+				<admin>
+					<children>
+						<Biztech_All>
+							<title>All Module</title>
+							<sort_order>10</sort_order>
+						</Biztech_All>
+					</children>
+				</admin>
+			</resources>
+		</acl>
         <events>
             <controller_action_predispatch>
                 <observers>
-
+               
                     <bzall_upds>
                         <type>singleton</type>
                         <class>all/update</class>
@@ -63,6 +83,13 @@
                 </observers>
             </controller_action_predispatch>
         </events>
+		<!--<layout>
+			<updates>
+				<all>
+					<file>all.xml</file>
+				</all>
+			</updates>
+		</layout>  -->
     </adminhtml>   
     <global>
         <models>

@@ -120,6 +120,7 @@
                 if($msgString == null){
                     $msgString = Mage::helper('mobileassistant')->__('A New order has been received on the Store.');
                 }
+                Mage::log('ordernoti',null);
                 $message     =$msgString."\nOrder Id: ".$order->getIncrementId()."\nGrand Total: ".$this->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode());
 
             }else if($notification_type == 'product'){

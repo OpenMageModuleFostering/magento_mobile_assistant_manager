@@ -28,7 +28,7 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
             $now = Mage::getModel('core/date')->timestamp(time());
             $end_date = date('Y-m-d 23:59:59', $now);
             $start_date = '';
-            $orderCollection = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', Array('eq' => 'complete'))->setOrder('entity_id', 'desc');
+            $orderCollection = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', array('in' => array('complete', 'processing')))->setOrder('entity_id', 'desc');
             if ($type_id == 7) {
                 $start_date = date('Y-m-d 00:00:00', strtotime('-6 days'));
             } elseif ($type_id == 30) {
@@ -74,7 +74,7 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
                 }
                 $count = 0;
                 foreach ($dates as $date) {
-                    $orderCollectionByDate = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', Array('eq' => 'complete'))->setOrder('entity_id', 'desc');
+                    $orderCollectionByDate = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', array('in' => array('complete', 'processing')))->setOrder('entity_id', 'desc');
 
                     if ($type_id == 24) {
                         if ($count == 23) {
@@ -132,7 +132,7 @@ class Biztech_Mobileassistant_DashboardController extends Mage_Core_Controller_F
                     $dates = $this->getDatesFromRange($first_day, $last_day);
 
                     foreach ($dates as $date) {
-                        $orderCollectionByDate = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', Array('eq' => 'complete'))->setOrder('entity_id', 'desc');
+                        $orderCollectionByDate = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id', Array('eq' => $storeId))->addFieldToFilter('status', array('in' => array('complete', 'processing')))->setOrder('entity_id', 'desc');
                         $dateStart = date('Y-m-d 00:00:00', strtotime($date));
                         $dateEnd = date('Y-m-d 23:59:59', strtotime($date));
                         $orderByDate = $orderCollectionByDate->addAttributeToFilter('created_at', array('from' => $dateStart, 'to' => $dateEnd));
