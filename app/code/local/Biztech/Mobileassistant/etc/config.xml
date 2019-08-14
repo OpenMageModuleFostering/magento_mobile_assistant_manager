@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <version>0.2.1</version>
+            <version>0.2.3</version>
         </Biztech_Mobileassistant>
     </modules>
     <frontend>
