@@ -64,6 +64,16 @@
                             <show_in_store>1</show_in_store>
                             <comment>Select Yes to enable this feature.</comment>
                         </enabled>
+                        <base_url translate="label">
+                            <label>Store Base Url</label>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>mobileassistant/config_baseurl</frontend_model>    
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Configure this URL on your device.</comment>
+                        </base_url>
                         <notification translate="label">
                             <label>Send Notification For</label>
                             <frontend_type>multiselect</frontend_type>
@@ -121,16 +131,6 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enter your message which will be received on the Mobile app whenever a new product review is added.</comment>
                         </product_review_notification_msg>
-                        <base_url translate="label">
-                            <label>Store Base Url</label>
-                            <frontend_type>text</frontend_type>
-                            <frontend_model>mobileassistant/config_baseurl</frontend_model>    
-                            <sort_order>8</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment>Diaplay Store Base Url.</comment>
-                        </base_url>
                         <barcode_for_url translate="label">
                             <label>Store Base Url QRcode</label>
                             <frontend_type>text</frontend_type>

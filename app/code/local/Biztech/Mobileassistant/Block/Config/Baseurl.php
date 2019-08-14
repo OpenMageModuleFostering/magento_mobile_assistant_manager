@@ -8,7 +8,7 @@
         }
         protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
         {
-            return Mage::getBaseUrl();
+            return '<span style="color:blue;">'.Mage::getBaseUrl().'</span>';
         }
 
     }
