@@ -6,10 +6,12 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
+
                 $limit          =   $post_data['limit'];
                 $offset         =   $post_data['offset'];
                 $new_customers  =   $post_data['last_fetch_customer'];
@@ -28,7 +30,7 @@
                 }
 
                 $customers->getSelect()->limit($limit);
-                 foreach($customers as $customer){
+                foreach($customers as $customer){
                     $billing_address  = Mage::getModel('customer/address')->load($customer->getDefaultBilling());
                     $shipping_address = Mage::getModel('customer/address')->load($customer->getDefaultShipping());
 
@@ -57,7 +59,8 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
@@ -65,14 +68,14 @@
                 $customerData = Mage::getModel('customer/customer')->load($customer_id);
 
 
-               $basic_detail = array(
+                $basic_detail = array(
                     'entity_id' => $customerData->getEntityId(),
                     'firstname'      => $customerData->getFirstname(),
                     'lastname'      => $customerData->getLastname(),
                     'email'     => $customerData->getEmail(),
                 );
 
-               foreach ($customerData->getAddresses() as $address) {
+                foreach ($customerData->getAddresses() as $address) {
                     $billing_type = 0;
                     $shipping_type = 0;
                     $billing_country_name  = null;
@@ -141,13 +144,13 @@
             return $orderListData;
         }
 
-
         public function getFilterCustomerListAction()
         {
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
@@ -173,7 +176,7 @@
                 }
 
 
-                 foreach($customers as $customer){
+                foreach($customers as $customer){
                     $billing_address  = Mage::getModel('customer/address')->load($customer->getDefaultBilling());
                     $shipping_address = Mage::getModel('customer/address')->load($customer->getDefaultShipping());
 

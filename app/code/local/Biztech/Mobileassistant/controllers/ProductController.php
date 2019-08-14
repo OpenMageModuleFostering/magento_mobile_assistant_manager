@@ -7,10 +7,12 @@
 
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
+
                 $storeId   = $post_data['storeid'];
                 $limit     = $post_data['limit'];
                 $offset    = $post_data['offset'];
@@ -25,9 +27,9 @@
 
 
                 if($is_refresh == 1){
-                    $last_fetch_product     =   $post_data['last_fetch_product'];
-                    $min_fetch_product      =   $post_data['min_fetch_product'];
-                    $last_updated           =   $post_data['last_updated'];
+                    $last_fetch_product     =  $post_data['last_fetch_product'];
+                    $min_fetch_product      =  $post_data['min_fetch_product'];
+                    $last_updated           =  $post_data['last_updated'];
                     $products->getSelect()->where("(entity_id BETWEEN '".$min_fetch_product."'AND '".$last_fetch_product ."' AND updated_at > '".$last_updated."') OR entity_id >'".$last_fetch_product."'");
                 }
 
@@ -39,7 +41,7 @@
                     $status       = $product_data->getStatus();
                     $qty          = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
                     if($status == 1){$status = 'Enabled';}else{$status = 'Disabled';}
-                    if($qty == 0 || $product_data->getIsInStock() == 0){$qty = 'Out of Stock';}
+                    if($qty < 0 || $product_data->getIsInStock() == 0){$qty = 'Out of Stock';}
                     $product_list[] = array(
                         'id'     => $product->getId(),
                         'sku'    => $product_data->getSku(),
@@ -66,9 +68,9 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("The Login has expired. Please try log in again.");
-                    return false;
+                
+                if (!$sessionId || $sessionId == NULL) {
+                    
                 }
                 try{
                     $storeId      = $post_data['storeid'];
@@ -92,8 +94,8 @@
 
 
                     $pro_status       = $product_data->getStatus();
-                    $qty          = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
-
+                    $pro_qty          = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
+                    if($pro_qty < 0 || $product_data->getIsInStock() == 0){$pro_qty = 'Out of Stock';}
                     $_images = $product_data->getMediaGalleryImages(); 
                     if($_images){
                         foreach($_images as $_image){
@@ -129,19 +131,24 @@
                             'price'  => Mage::helper('mobileassistant')->getPrice($associated_product->getPrice(),$storeId),
                         );
                     }
+
+
+
+
                     $product_details[] = array(
                         'id'     => $product_data->getId(),
                         'sku'    => $product_data->getSku(),
                         'name'   => $product_data->getName(),
                         'status' => $pro_status,
-                        'qty'    => $qty,
+                        'qty'    => $pro_qty,
                         'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(),$storeId),
                         'desc'   => $product_data->getDescription(),
                         'type'   => $product_data->getTypeId(),
                         'special_price'   => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice(),$storeId),
                         'image'  => ($product_data->getImage())?Mage::helper('catalog/image')->init($product_data, 'image',$product_data->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
                         'associated_skus' => $associated_products_details,
-                        'all_images' => $images
+                        'all_images' => $images,
+
                     );
 
                     $productResultArr    = array('productdata' => $product_details , 'associated_products_list' =>$associated_products_list);
@@ -165,7 +172,8 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
@@ -215,7 +223,7 @@
                         $status       = $product_data->getStatus();
                         $qty          = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
                         if($status == 1){$status = 'Enabled';}else{$status = 'Disabled';}
-                        if($qty == 0 || $product_data->getIsInStock() == 0){$qty = 'Out of Stock';}
+                        if($qty < 0 || $product_data->getIsInStock() == 0){$qty = 'Out of Stock';}
                         $product_list[] = array(
                             'id'     => $product->getId(),
                             'sku'    => $product_data->getSku(),
@@ -249,7 +257,8 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }

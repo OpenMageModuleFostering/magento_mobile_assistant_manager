@@ -6,7 +6,8 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
@@ -69,7 +70,7 @@
                 $storeId   = $post_data['storeid'];
                 $sessionId = $post_data['session'];
 
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
@@ -136,7 +137,8 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 $storeId   = $post_data['storeid'];
-                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                 
+                if (!$sessionId || $sessionId == NULL) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }

@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <version>0.1.9</version>
+            <version>0.2.0</version>
         </Biztech_Mobileassistant>
     </modules>
     <frontend>
@@ -167,7 +167,7 @@
                     </mobileassistant_stockupdate>
                 </observers>
             </sales_model_service_quote_submit_before>
-
+             
             <sales_model_service_quote_submit_failure>
                 <observers>
                     <mobileassistant_stockupdate>

@@ -5,14 +5,6 @@
         {   
             if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
 
-                if(class_exists("SOAPClient") == false)
-                {
-                    $result['error'] = $this->__('It seems you have php extension: SOAP disabled in your server. Please enable.'); 
-                    $jsonData = Mage::helper('core')->jsonEncode($result);
-                    return Mage::app()->getResponse()->setBody($jsonData);  
-                }
-
-
                 $isSecure = Mage::app()->getFrontController()->getRequest()->isSecure(); 
                 $validate_url = false;
                 if($isSecure)
@@ -26,27 +18,57 @@
                         $validate_url = true;
                     }
                 }
-                if($validate_url){
-                    $details     = Mage::app()->getRequest()->getParams();
-                    $user        = $details['userapi']; 
-                    $api_key     = $details['keyapi']; 
-                    $deviceToken = $details['token'];
-                    $flag        = $details['notification_flag'];
-                    $device_type = $details['device_type'];
-                    $url         = $details['magento_url'].'api/soap?wsdl';
 
-                    try{
-                        $soap       = new SoapClient($url);
-                        $session_id = $soap->login($user, $api_key);
-                    }
-                    catch(SoapFault $fault){
-                        $result['error'] = $fault->getMessage();
+                if($validate_url){
+
+                    $details     = Mage::app()->getRequest()->getParams();
+
+                    $username     = $details['userapi']; 
+                    $password     = $details['keyapi']; 
+                    $deviceToken  = $details['token'];
+                    $flag         = $details['notification_flag'];
+                    $device_type  = $details['device_type'];
+
+                    Mage::register('isSecureArea', true);
+
+                    $config = Mage::getStoreConfigFlag('admin/security/use_case_sensitive_login');  
+                    Mage::getSingleton('core/session', array('name' => 'adminhtml'));   
+                    $user = Mage::getModel('admin/user')->loadByUsername($username); 
+
+                    $sensitive = ($config) ? $username == $user->getUsername() : true;
+
+                    if ($sensitive && $user->getId() && Mage::helper('core')->validateHash($password, $user->getPassword())) {
+                        if ($user->getIsActive() != '1') {
+                            $result['error'] = Mage::helper('adminhtml')->__('This account is inactive.');
+                        }
+                        if (!$user->hasAssigned2Role($user->getId())) {
+                            $result['error'] = Mage::helper('adminhtml')->__('Access denied.');
+                        }
+
+                    }else{
+                        $result['error'] = $this->__('Invalid User Name or Password.');
                         $jsonData = Mage::helper('core')->jsonEncode($result);
                         return Mage::app()->getResponse()->setBody($jsonData);
                     }
+                    if (Mage::getSingleton('adminhtml/url')->useSecretKey()) {
+                        Mage::getSingleton('adminhtml/url')->renewSecretUrls();
+                    }
+                    $session = Mage::getSingleton('admin/session');
+
+                    $session->setIsFirstVisit(true);
+                    $session->setUser($user);
+                    $session->setAcl(Mage::getResourceModel('admin/acl')->loadAcl());
+                    $session_id = $user->getId().'_'.md5($username);
+
+                    Mage::dispatchEvent('admin_session_user_login_success',array('user'=>$user));
+
+                    Mage::unregister('isSecureArea');
+
                     if($session_id){
-                        $data[]   = array('user' => $user,'key' => $api_key,'devicetoken'=>$deviceToken,'session_id' => $session_id,'notification_flag'=> $flag,'device_type'=> $device_type,'is_logout'=> 0);
-                        $result   = $soap->call($session_id,'mobileassistant.create',$data);
+                        $data   = array('username' => $username,'password' => $user->getPassword(),'devicetoken'=>$deviceToken,'session_id' => $session_id,'notification_flag'=> $flag,'device_type'=> $device_type,'is_logout'=> 0);
+                        $result   = Mage::helper('mobileassistant')->create($data);
+
+
                         $jsonData = Mage::helper('core')->jsonEncode($result);
                         return Mage::app()->getResponse()->setBody($jsonData);
                     }
@@ -68,7 +90,7 @@
 
             if(Mage::getConfig()->getModuleConfig('Biztech_Mobileassistant')->is('active', 'true') && Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled'))
             {
-                
+
                 $isSecure = Mage::app()->getFrontController()->getRequest()->isSecure(); 
                 $validate_url = false;
                 if($isSecure)
@@ -160,6 +182,7 @@
 
         public function logoutAction()
         {
+
             $post_data   = Mage::app()->getRequest()->getParams();
             $user        = $post_data['userapi']; 
             $deviceToken = $post_data['token'];
