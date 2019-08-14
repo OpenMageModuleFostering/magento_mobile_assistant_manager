@@ -34,56 +34,50 @@
             $feedData           = array();
             $extensio_module    = array();
             try{
-                $xml = false;
-                $limit_context = stream_context_create(array('http'=>array('timeout' => 5)));
-                $xml            =   file_get_contents(self::UPDATE_NOTIFICATION_FEED_URL,true,$limit_context);   
+                $xml            =   file_get_contents(self::UPDATE_NOTIFICATION_FEED_URL);   
                 $xml            =   simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA);//LIBXML_NOCDATA LIBXML_NOWARNING 
 
-                if($xml != false){
-                    $interests                  = $this->getInterests();
-                    if(!empty($interests[0])){
-                        $isInterestedInSelfUpgrades = in_array(Biztech_All_Model_Source_Updates_Type::TYPE_INSTALLED_UPDATE, $interests);    
-                        $isInterestedInAllUpgrades = in_array(Biztech_All_Model_Source_Updates_Type::TYPE_UPDATE_RELEASE, $interests);    
-                        $modules                    = Mage::getConfig()->getNode('modules')->children();
-                        $modulesArray               = (array)$modules;
-                        foreach($xml->channel->item as $keys=>$extensions) {
-                            $types[]                =   (string) $extensions->update_notifications->type;
-                            $extensions_name      = (string)$extensions->update_notifications->extensions;
+                $interests                  = $this->getInterests();
+                if(!empty($interests[0])){
+                    $isInterestedInSelfUpgrades = in_array(Biztech_All_Model_Source_Updates_Type::TYPE_INSTALLED_UPDATE, $interests);    
+                    $isInterestedInAllUpgrades = in_array(Biztech_All_Model_Source_Updates_Type::TYPE_UPDATE_RELEASE, $interests);    
+                    $modules                    = Mage::getConfig()->getNode('modules')->children();
+                    $modulesArray               = (array)$modules;
+                    foreach($xml->channel->item as $keys=>$extensions) {
+                        $types[]                =   (string) $extensions->update_notifications->type;
+                        $extensions_name      = (string)$extensions->update_notifications->extensions;
 
-                            if((string)$extensions->update_notifications->date!=""&&(string)$extensions->update_notifications->extension_title!=""&&(string)$extensions->update_notifications->extension_content!=""&&(string)$extensions->update_notifications->product_url!=""){
-                                if(!$isInterestedInAllUpgrades){
-                                    if ($this->isExtensionInstalled($extensions_name)) {
-                                        $feedData[] = array(
-                                            'severity' => 4,
-                                            'date_added' =>  (string) $extensions->update_notifications->date,
-                                            'title' => (string)$extensions->update_notifications->extension_title,
-                                            'description' => (string)$extensions->update_notifications->extension_content,
-                                            'url' => (string)$extensions->update_notifications->product_url,
-                                        );
-                                    }           
-                                } else{
-                                    $feedData[] = array( 
+                        if((string)$extensions->update_notifications->date!=""&&(string)$extensions->update_notifications->extension_title!=""&&(string)$extensions->update_notifications->extension_content!=""&&(string)$extensions->update_notifications->product_url!=""){
+                            if(!$isInterestedInAllUpgrades){
+                                if ($this->isExtensionInstalled($extensions_name)) {
+                                    $feedData[] = array(
                                         'severity' => 4,
-                                        'date_added' =>  (string)$extensions->update_notifications->date,
+                                        'date_added' =>  (string) $extensions->update_notifications->date,
                                         'title' => (string)$extensions->update_notifications->extension_title,
                                         'description' => (string)$extensions->update_notifications->extension_content,
                                         'url' => (string)$extensions->update_notifications->product_url,
                                     );
-                                }
+                                }           
+                            } else{
+                                $feedData[] = array( 
+                                    'severity' => 4,
+                                    'date_added' =>  (string)$extensions->update_notifications->date,
+                                    'title' => (string)$extensions->update_notifications->extension_title,
+                                    'description' => (string)$extensions->update_notifications->extension_content,
+                                    'url' => (string)$extensions->update_notifications->product_url,
+                                );
                             }
                         }
-                        if ($feedData) {
-                            foreach($feedData as $data){
-                                if ((array_intersect($types,$interests) && $isInterestedInSelfUpgrades)) {
-                                    Mage::getModel('adminnotification/inbox')->parse(array_reverse(array($data)));
-                                }
-                            }
-                        } 
-                        Mage::app()->saveCache(time(), 'biztech_all_updates_feed_lastcheck');
-                        return true; 
                     }
-                } else{
-                    return false;
+                    if ($feedData) {
+                        foreach($feedData as $data){
+                            if ((array_intersect($types,$interests) && $isInterestedInSelfUpgrades)) {
+                                Mage::getModel('adminnotification/inbox')->parse(array_reverse(array($data)));
+                            }
+                        }
+                    } 
+                    Mage::app()->saveCache(time(), 'biztech_all_updates_feed_lastcheck');
+                    return true; 
                 }
             }catch (Exception $e) {
                 Mage::getSingleton('adminhtml/session')->addError($e->getMessage());

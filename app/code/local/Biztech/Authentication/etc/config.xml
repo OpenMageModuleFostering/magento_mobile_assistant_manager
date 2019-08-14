@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<config>
+    <modules>
+        <Biztech_Authentication>
+            <version>0.1.0</version>
+        </Biztech_Authentication>
+    </modules>
+    <frontend>
+        <routers>
+            <authentication>
+                <use>standard</use>
+                <args>
+                    <module>Biztech_Authentication</module>
+                    <frontName>authentication</frontName>
+                </args>
+            </authentication>
+        </routers>
+    </frontend>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <authentication after="Mage_Adminhtml">Biztech_Authentication_Adminhtml</authentication>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+</config>
