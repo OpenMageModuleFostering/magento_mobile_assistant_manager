@@ -142,15 +142,6 @@
             </mobileassistant>
         </helpers>
         <events>
-            <admin_system_config_changed_section_mobileassistant>
-                <observers>
-                    <magemobcart>
-                        <type>model</type>
-                        <class>mobileassistant/observer</class>
-                        <method>checkKey</method>
-                    </magemobcart>
-                </observers>
-            </admin_system_config_changed_section_mobileassistant>
             <customer_register_success>
                 <observers>
                     <mobileassistant_customer_notification_checkout>
