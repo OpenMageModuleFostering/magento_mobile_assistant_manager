@@ -14,7 +14,7 @@
                     $passphrase  = 'magento123';
                     $message     = Mage::getStoreConfig('mobileassistant/mobileassistant_general/notification_msg');
                     if($message == null){
-                        $message     = Mage::helper('mobileassistant')->__('Placed new order in your store..!');
+                        $message     = Mage::helper('mobileassistant')->__('A New order has been received on the Store.');
                     }
                     $apnsCert = Mage::getBaseDir('lib'). DS. "mobileassistant/ck.pem";
                     $ctx      = stream_context_create();

@@ -7,7 +7,7 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
                 $limit         = $post_data['limit'];
@@ -46,7 +46,7 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
                 $customer_id  = $post_data['customer_id'];
@@ -137,7 +137,7 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
                 $search    = $post_data['search_content'];

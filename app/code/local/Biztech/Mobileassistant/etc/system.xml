@@ -35,13 +35,13 @@
                             <comment>Select Yes to enable this feature.</comment>
                         </enabled>
                         <notification_msg translate="label">
-                            <label>Notification Message</label>
+                            <label>New Order Notification Message</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Enter your message for notification.</comment>
+                            <comment>Enter your message which will be received on the Mobile app whenever a New Order is received.</comment>
                         </notification_msg>
                         
                     </fields>

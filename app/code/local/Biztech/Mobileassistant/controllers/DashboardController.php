@@ -7,7 +7,7 @@
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
-                    echo $this->__("Session expired....Please Login again");
+                    echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
 

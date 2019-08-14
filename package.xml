@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>magento_mobile_assistant_manager</name>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
     <stability>stable</stability>
     <license uri="http://opensource.org/licenses/osl-3.0.php">OSL v3.0</license>
     <channel>community</channel>
@@ -25,11 +25,11 @@ To ensure smooth working of this extension you need to download this extension i
 Application Download Link:&#xD;
 https://itunes.apple.com/us/app/magentomobilemanager/id695074519?mt=8&amp;ign-mpt=uo%3D4&#xD;
 </description>
-    <notes>-Fixed minor bug with product details</notes>
+    <notes>-Fix url testing issue.</notes>
     <authors><author><name>Biztech</name><user>biztechcon</user><email>sales@biztechconsultancy.com</email></author></authors>
-    <date>2013-11-06</date>
-    <time>11:28:13</time>
-    <contents><target name="mageetc"><dir name="modules"><file name="Biztech_Mobileassistant.xml" hash="14d6d04686f97fab6371920fdf3baf7e"/></dir></target><target name="magelocal"><dir name="Biztech"><dir name="Mobileassistant"><dir name="Helper"><file name="Data.php" hash="0d39e75ee4898ac28bb62a35f71066a2"/></dir><dir name="Model"><dir name="Mobileassistant"><file name="Api.php" hash="ef403d19cf7ca3245192539de4b21632"/></dir><file name="Mobileassistant.php" hash="3f221d0fa184e94ec3004bb0256abbf3"/><dir name="Mysql4"><dir name="Mobileassistant"><file name="Collection.php" hash="373ce57310145f3d007952e8c7beffbf"/></dir><file name="Mobileassistant.php" hash="3ef12554d281a2fa7ef47943763be76d"/></dir><file name="Observer.php" hash="ed728de9fa2dbac9dfe976b4821c3865"/></dir><dir name="controllers"><file name="CustomerController.php" hash="e64dea09069dc4a69c2981c5aad4c64c"/><file name="DashboardController.php" hash="d5c9f6c0686ae25966af73e51fcb4c04"/><file name="IndexController.php" hash="3cd73cb5c50dde854b2f6c18986df455"/><file name="OrderController.php" hash="60ee4ece453aa5cd57a15bd000c7478b"/><file name="ProductController.php" hash="2329a664abc377b0f496b467a32369a2"/></dir><dir name="etc"><file name="api.xml" hash="f7d93508ce53982484f0d1f9ab3a17cd"/><file name="config.xml" hash="598d641ea35c35c3aab47d400fc1cc43"/><file name="system.xml" hash="5aeda6044c3ae5e44c51db392f5e0ddc"/></dir><dir name="sql"><dir name="mobileassistant_setup"><file name="mysql4-install-0.1.0.php" hash="c25eff9c480cc82b6edfaef1e87e27a7"/></dir></dir></dir></dir></target><target name="mage"><dir name="lib"><dir name="mobileassistant"><file name="ck.pem" hash="100e9fb152a99cf2d2499e781d4a4b92"/></dir></dir></target></contents>
+    <date>2014-01-16</date>
+    <time>08:51:26</time>
+    <contents><target name="mageetc"><dir name="modules"><file name="Biztech_Mobileassistant.xml" hash="14d6d04686f97fab6371920fdf3baf7e"/></dir></target><target name="magelocal"><dir name="Biztech"><dir name="Mobileassistant"><dir name="Helper"><file name="Data.php" hash="0d39e75ee4898ac28bb62a35f71066a2"/></dir><dir name="Model"><dir name="Mobileassistant"><file name="Api.php" hash="ef403d19cf7ca3245192539de4b21632"/></dir><file name="Mobileassistant.php" hash="3f221d0fa184e94ec3004bb0256abbf3"/><dir name="Mysql4"><dir name="Mobileassistant"><file name="Collection.php" hash="373ce57310145f3d007952e8c7beffbf"/></dir><file name="Mobileassistant.php" hash="3ef12554d281a2fa7ef47943763be76d"/></dir><file name="Observer.php" hash="ce6676f3e7a08c04ff12a1e16ed5c084"/></dir><dir name="controllers"><file name="CustomerController.php" hash="682df3bf1d1dae6d69e6eea342d1e190"/><file name="DashboardController.php" hash="26cd8aab550a8606d3c1d28df9ba6938"/><file name="IndexController.php" hash="2f2c8bf469ee50e1313e3d8e495f6f08"/><file name="OrderController.php" hash="553fb25c4796f7507b511b6f8b89f133"/><file name="ProductController.php" hash="4f4d66aa9d2cd3db10a40ddb4577f61c"/></dir><dir name="etc"><file name="api.xml" hash="f7d93508ce53982484f0d1f9ab3a17cd"/><file name="config.xml" hash="cb53e2b5e877d5f635d48118c6ed688a"/><file name="system.xml" hash="07f2f1fd8f022e001fadc28f2a29e32f"/></dir><dir name="sql"><dir name="mobileassistant_setup"><file name="mysql4-install-0.1.0.php" hash="c25eff9c480cc82b6edfaef1e87e27a7"/></dir></dir></dir></dir></target><target name="mage"><dir name="lib"><dir name="mobileassistant"><file name="ck.pem" hash="100e9fb152a99cf2d2499e781d4a4b92"/></dir></dir></target></contents>
     <compatible/>
-    <dependencies><required><php><min>5.1.0</min><max>6.0.0</max></php></required></dependencies>
+    <dependencies><required><php><min>5.3.0</min><max>6.0.0</max></php></required></dependencies>
 </package>
