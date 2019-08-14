@@ -66,7 +66,7 @@
                     {
                         $orderCollectionByDate = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('store_id',Array('eq'=>$storeId))->addFieldToFilter('status',Array('eq'=>'complete'))->setOrder('entity_id', 'desc');
 
-                        if ($type_id==24){
+                        if ($type_id == 24){
                             $dateStart   = $dates[$count];
                             $dateEnd     = $dates[$count+1]; 
                         }else{
@@ -138,9 +138,12 @@
                     }
                 }
 
-                $orderGrandTotal      = strip_tags(Mage::helper('core')->currency(array_sum($orderTotalByDate)));
-                $lifeTimeSales        = strip_tags(Mage::helper('core')->currency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getLifetime(),2)));
-                $averageOrder         = strip_tags(Mage::helper('core')->currency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getAverage(),2)));
+                $baseCurrencyCode = Mage::app()->getStore()->getBaseCurrencyCode(); 
+
+                $orderGrandTotal = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(array_sum($orderTotalByDate)));
+                $lifeTimeSales   = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getLifetime(),2)));
+                $averageOrder    = strip_tags(Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(round(Mage::getResourceModel('reports/order_collection')->addFieldToFilter('store_id', $storeId)->calculateSales()->load()->getFirstItem()->getAverage(),2)));
+
                 $orderTotalResultArr  = array('dashboard_result' =>array('ordertotalbydate' => $orderTotalByDate,'ordergrandtotal' => $orderGrandTotal,'totalordercount' => $total_count,'lifetimesales' => $lifeTimeSales,'averageorder' => $averageOrder));
                 $orderDashboardResult = Mage::helper('core')->jsonEncode($orderTotalResultArr);
                 return Mage::app()->getResponse()->setBody($orderDashboardResult);
@@ -159,6 +162,46 @@
                 $dates[] = date("Y-m-d", $i);  
             }  
             return $dates;
+        }
+
+        public function getNewestCustomerAction()
+        {
+            if(Mage::helper('mobileassistant')->isEnable()){
+                $post_data = Mage::app()->getRequest()->getParams();
+                $sessionId = $post_data['session'];
+                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                    echo $this->__("The Login has expired. Please try log in again.");
+                    return false;
+                }
+
+                $storeId  =$post_data['storeid'];
+                $baseCurrencyCode = (string) Mage::app()->getStore($storeId)->getBaseCurrencyCode();
+
+                $collection = Mage::getResourceModel('reports/customer_collection')->addCustomerName();
+                $storeFilter = 0;
+                if ($storeId) {
+                    $collection->addAttributeToFilter('store_id', $storeId);
+                    $storeFilter = 1;
+                }
+                $collection->addOrdersStatistics($storeFilter)->orderByCustomerRegistration();
+
+                foreach($collection as $_collection)
+                {
+                    $newestCustomer[] = array(
+                        'name' => $_collection->getName(),
+                        'email' => $_collection->getEmail(),
+                        'orders_count' => $_collection->getOrdersCount(),
+                        'average_order_amount'=>Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersAvgAmount())),
+                        'total_order_amount' => Mage::app()->getLocale()->currency($baseCurrencyCode)->toCurrency(Mage::helper('mobileassistant')->getPriceFormat($_collection->getOrdersSumAmount()))
+                    );
+                }
+
+                $NewestCustomerResult = Mage::helper('core')->jsonEncode($newestCustomer);
+                return Mage::app()->getResponse()->setBody($NewestCustomerResult);
+            }else{
+                $isEnable    = Mage::helper('core')->jsonEncode(array('enable' => false));
+                return Mage::app()->getResponse()->setBody($isEnable);
+            }
         }
 
         function get_months($date1, $date2) { 
@@ -196,8 +239,7 @@
             return date('Y-m-d', $result);
         }
 
-        function firstDay($month = '', $year = '')
-        {
+        function firstDay($month = '', $year = '') {
             if (empty($month)) {
                 $month = date('m');
             }

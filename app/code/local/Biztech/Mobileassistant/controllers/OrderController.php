@@ -15,10 +15,11 @@
                 $storeId    = $post_data['storeid'];
                 $offset     = $post_data['offset'];
                 $is_refresh = $post_data['is_refresh'];
+                $source = $post_data['source'];
 
                 $orderCollection = Mage::getResourceModel('sales/order_grid_collection')->addFieldToFilter('store_id',Array('eq'=>$storeId))->setOrder('entity_id', 'desc');
                 if($offset != null){
-                    $orderCollection->addAttributeToFilter('entity_id', array('lt' => $offset));
+                   $orderCollection->addAttributeToFilter('entity_id', array('lt' => $offset));
                 }
                 if($is_refresh == 1){
                     $last_fetch_order  = $post_data['last_fetch_order'];
@@ -27,10 +28,17 @@
 
                     $orderCollection->getSelect()->where("(entity_id BETWEEN '".$min_fetch_order."'AND '".$last_fetch_order ."' AND updated_at > '".$last_updated."') OR entity_id >'".$last_fetch_order."'");
                 }
+                
                 $orderCollection->getSelect()->limit($limit);
-
+                      
                 foreach($orderCollection as $order){
-
+                    if($source == 'dashboard')
+                    {
+                        $grand_total = Mage::helper('mobileassistant')->getPrice($order->getBaseGrandTotal(),$order->getStoreId(),$order->getBaseCurrencyCode());
+                    }else{
+                         $grand_total = Mage::helper('mobileassistant')->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode());
+                    }
+                    
                     $orderListData[] = array(
                         'entity_id'     => $order->getEntityId(),
                         'increment_id'  => $order->getIncrementId(),
@@ -38,8 +46,9 @@
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
                         'order_date'    => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
-                        'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
-                        'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
+                        'grand_total'   => $grand_total,
+                        'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered(),
+                        'total_items'   => count($order->getAllItems())
                     );
                 }
 
@@ -107,8 +116,9 @@
                         'customer_name' => $order->getBillingName(),
                         'status'        => $order->getStatus(),
                         'order_date'    => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
-                        'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
-                        'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
+                        'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
+                        'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered(),
+                        'total_items'   => count($order->getAllItems())
                     );
                 }
                 $orderListResultArr = array('orderlistdata' => $orderListData);
@@ -125,6 +135,7 @@
             if(Mage::helper('mobileassistant')->isEnable()){
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
+                $storeId   = $post_data['storeid'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
@@ -139,10 +150,11 @@
                     'status'       => $order->getStatus(),
                     'order_date'   => Mage::helper('mobileassistant')->getActualOrderDate($order->getCreatedAt()),
                     'total_qty'    => $order->getTotalQtyOrdered(),
-                    'grand_total'  => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
-                    'sub_total'    => Mage::helper('mobileassistant')->getPrice($order->getSubtotal()),
-                    'discount'     => Mage::helper('mobileassistant')->getPrice($order->getDiscountAmount()),
-                    'tax'          => Mage::helper('mobileassistant')->getPrice($order->getTax())
+                    'total_items'   => count($order->getAllItems()),
+                    'grand_total'  => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
+                    'sub_total'    => Mage::helper('mobileassistant')->getPrice($order->getSubtotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
+                    'discount'     => Mage::helper('mobileassistant')->getPrice($order->getDiscountAmount(),$order->getStoreId(),$order->getOrderCurrencyCode()),
+                    'tax'          => Mage::helper('mobileassistant')->getPrice($order->getTax(),$order->getStoreId(),$order->getOrderCurrencyCode())
                 );
 
                 $customer_id   = $order->getCustomerId();
@@ -183,7 +195,7 @@
 
                 $shipping_info = array(
                     'shipping_method' => $order->getShippingDescription(),
-                    'shipping_charge' => Mage::helper('mobileassistant')->getPrice($order->getShippingAmount())
+                    'shipping_charge' => Mage::helper('mobileassistant')->getPrice($order->getShippingAmount(),$order->getStoreId(),$order->getOrderCurrencyCode())
                 );
 
                 $products_detail = $this->_orderedProductDetails($order_id);
@@ -268,9 +280,9 @@
                     'product_id'  => $item->getProductId(),
                     'name'        => $item->getName(),
                     'sku'         => $item->getSku(),
-                    'unit_price'  => Mage::helper('mobileassistant')->getPrice($item->getOriginalPrice()),
+                    'unit_price'  => Mage::helper('mobileassistant')->getPrice($item->getOriginalPrice(),$order->getStoreId(),$order->getOrderCurrencyCode()),
                     'ordered_qty' => round($item->getQtyOrdered(), 2),
-                    'row_total'   => Mage::helper('mobileassistant')->getPrice($item->getRowTotal()),
+                    'row_total'   => Mage::helper('mobileassistant')->getPrice($item->getRowTotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
                     'options'     => $skus ? $skus : '',
                     'image'       => ($product->getImage())?Mage::helper('catalog/image')->init($product, 'image',$product->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
                     'attribute_info' => $info ? $info : ''

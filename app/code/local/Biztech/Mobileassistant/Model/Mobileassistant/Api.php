@@ -28,7 +28,8 @@
                         $fields['notification_flag'] = $data['notification_flag'];
                         $fields['is_logout'] = $data['is_logout'];
                         $where = $connection->quoteInto('user_id =?', $user_id);
-                        $connection->update('mobileassistant', $fields, $where);
+                        $prefix = Mage::getConfig()->getTablePrefix();
+                        $connection->update($prefix.'mobileassistant', $fields, $where);
                         $connection->commit();
                     } catch (Exception $e){
                         return $e->getMessage();

@@ -4,6 +4,7 @@
         public function getProductListAction()
         {
             if(Mage::helper('mobileassistant')->isEnable()){
+
                 $post_data = Mage::app()->getRequest()->getParams();
                 $sessionId = $post_data['session'];
                 if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
@@ -15,6 +16,7 @@
                 $offset    = $post_data['offset'];
                 $new_products    = $post_data['last_fetch_product'];
                 $is_refresh = $post_data['is_refresh'];
+
 
                 $products  = Mage::getModel('catalog/product')->getCollection()->addStoreFilter($storeId)->setOrder('entity_id', 'desc');
                 if($offset != null){
@@ -44,7 +46,7 @@
                         'name'   => $product_data->getName(),
                         'status' => $status,
                         'qty'    => $qty,
-                        'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice()),
+                        'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(),$storeId),
                         'image'  => ($product_data->getImage())?Mage::helper('catalog/image')->init($product, 'image',$product_data->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
                         'type'   => $product->getTypeId()
                     );
@@ -71,11 +73,34 @@
                 try{
                     $storeId      = $post_data['storeid'];
                     $productId    = $post_data['productid'];
-                    $product_data = Mage::getModel('catalog/product')->load($productId);
-                    $status       = $product_data->getStatus();
+                    $productSku   = $post_data['sku'];
+
+                    if(isset($productSku) && $productSku != null)
+                    {
+                        $product = Mage::getModel('catalog/product')->loadByAttribute('sku', $productSku); 
+                        if($product)
+                        {
+                            $product_data  = Mage::getModel('catalog/product')->load($product->getId()); 
+                        }else{
+                            $result    = Mage::helper('core')->jsonEncode(array('mesage' => 'No product found.'));
+                            return Mage::app()->getResponse()->setBody($result);
+                        }
+
+                    }else{
+                        $product_data = Mage::getModel('catalog/product')->load($productId); 
+                    }
+
+
+                    $pro_status       = $product_data->getStatus();
                     $qty          = Mage::getModel('cataloginventory/stock_item')->loadByProduct($product_data)->getQty();
 
-                    if($status == 1){$status = 'Enabled';}else{$status = 'Disabled';}
+                    $_images = $product_data->getMediaGalleryImages(); 
+                    if($_images){
+                        foreach($_images as $_image){
+                            $images[] = Mage::helper('catalog/image')->init($product_data, 'thumbnail', $_image->getFile())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString();     
+                        }
+                    }
+                    if($pro_status == 1){$pro_status = 'Enabled';}else{$pro_status = 'Disabled';}
 
                     if($product_data->getTypeId() == 'grouped'){
                         $associated_products = $product_data->getTypeInstance(true)->getAssociatedProducts($product_data); 
@@ -101,22 +126,22 @@
                             'name'   => $associated_product->getName(),
                             'status' => $status,
                             'qty'    => $qty,
-                            'price'  => Mage::helper('mobileassistant')->getPrice($associated_product->getPrice())
+                            'price'  => Mage::helper('mobileassistant')->getPrice($associated_product->getPrice(),$storeId),
                         );
                     }
                     $product_details[] = array(
                         'id'     => $product_data->getId(),
                         'sku'    => $product_data->getSku(),
                         'name'   => $product_data->getName(),
-                        'status' => $status,
+                        'status' => $pro_status,
                         'qty'    => $qty,
-                        'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice()),
+                        'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(),$storeId),
                         'desc'   => $product_data->getDescription(),
                         'type'   => $product_data->getTypeId(),
-                        'image'  => Mage::getModel('catalog/product_media_config')->getMediaUrl($product_data->getImage()),
-                        'special_price'   => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice()),
+                        'special_price'   => Mage::helper('mobileassistant')->getPrice($product_data->getSpecialPrice(),$storeId),
                         'image'  => ($product_data->getImage())?Mage::helper('catalog/image')->init($product_data, 'image',$product_data->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
-                        'associated_skus' => $associated_products_details
+                        'associated_skus' => $associated_products_details,
+                        'all_images' => $images
                     );
 
                     $productResultArr    = array('productdata' => $product_details , 'associated_products_list' =>$associated_products_list);
@@ -197,7 +222,7 @@
                             'name'   => $product_data->getName(),
                             'status' => $status,
                             'qty'    => $qty,
-                            'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice()),
+                            'price'  => Mage::helper('mobileassistant')->getPrice($product_data->getPrice(),$storeId),
                             'type'   => $product->getTypeId(),
                             'image'  => ($product_data->getImage())?Mage::helper('catalog/image')->init($product, 'image',$product_data->getImage())->resize(300,330)->keepAspectRatio(true)->constrainOnly(true)->__toString():'N/A',
                         );
@@ -212,6 +237,44 @@
                         'message'   =>  $e->getMessage()
                     );
                     return Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($product_list));
+                }
+            }else{
+                $isEnable    = Mage::helper('core')->jsonEncode(array('enable' => false));
+                return Mage::app()->getResponse()->setBody($isEnable);
+            }
+        }
+
+        public function ChangeProductStatusAction()
+        {
+            if(Mage::helper('mobileassistant')->isEnable()){
+                $post_data = Mage::app()->getRequest()->getParams();
+                $sessionId = $post_data['session'];
+                if (!Mage::getSingleton('api/session')->isLoggedIn($sessionId)) {
+                    echo $this->__("The Login has expired. Please try log in again.");
+                    return false;
+                }
+                try{
+                    $storeId      = $post_data['storeid'];
+                    $productId    = $post_data['productid'];
+                    $current_status = $post_data['current_status'];
+                    $new_status = $post_data['new_status'];
+
+
+                    if($current_status != $new_status && $new_status == 1)
+                    {
+                        Mage::getModel('catalog/product_status')->updateProductStatus($productId, $storeId, Mage_Catalog_Model_Product_Status::STATUS_ENABLED);  
+                    }elseif($current_status != $new_status && $new_status == 2){
+                        Mage::getModel('catalog/product_status')->updateProductStatus($productId, $storeId, Mage_Catalog_Model_Product_Status::STATUS_DISABLED);
+                    }
+                    $productResultArr = array('message' => 'Product has been successfully updated.');
+                    $productDetailResult = Mage::helper('core')->jsonEncode($productResultArr);
+                    return Mage::app()->getResponse()->setBody($productDetailResult);
+                }catch (Exception $e){
+                    $product_details = array (
+                        'status'    =>  'error',
+                        'message'   =>  $e->getMessage()
+                    );
+                    return Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($product_details));
                 }
             }else{
                 $isEnable    = Mage::helper('core')->jsonEncode(array('enable' => false));

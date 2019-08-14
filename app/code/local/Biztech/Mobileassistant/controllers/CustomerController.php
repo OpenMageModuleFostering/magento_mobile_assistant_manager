@@ -134,7 +134,7 @@
                     'customer_name' => $order->getBillingName(),
                     'status'        => $order->getStatus(),
                     'order_date'    => date('Y-m-d H:i:s', strtotime($order->getCreatedAt())),
-                    'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal()),
+                    'grand_total'   => Mage::helper('mobileassistant')->getPrice($order->getGrandTotal(),$order->getStoreId(),$order->getOrderCurrencyCode()),
                     'toal_qty'      => Mage::getModel('sales/order')->load($order->getEntityId())->getTotalQtyOrdered()
                 );
             }

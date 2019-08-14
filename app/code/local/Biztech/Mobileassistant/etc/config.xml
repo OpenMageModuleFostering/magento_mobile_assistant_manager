@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Biztech_Mobileassistant>
-            <version>0.1.8</version>
+            <version>0.1.9</version>
         </Biztech_Mobileassistant>
     </modules>
     <frontend>
@@ -76,6 +76,7 @@
                 </mobileassistant>
             </updates>
         </layout>
+
     </adminhtml>   
     <global>
         <models>
@@ -147,6 +148,35 @@
                     </customer_register_checkout>
                 </observers>
             </customer_register_checkout>
+            
+            <!--inventory status:starts-->
+            <cataloginventory_stock_item_save_commit_after>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>catalogInventorySave</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </cataloginventory_stock_item_save_commit_after>
+
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>subtractQuoteInventory</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </sales_model_service_quote_submit_before>
+
+            <sales_model_service_quote_submit_failure>
+                <observers>
+                    <mobileassistant_stockupdate>
+                        <class>mobileassistant/observer</class>
+                        <method>revertQuoteInventory</method>
+                    </mobileassistant_stockupdate>
+                </observers>
+            </sales_model_service_quote_submit_failure>
+            <!--inventory status:ends-->
         </events>
     </global>
 </config>

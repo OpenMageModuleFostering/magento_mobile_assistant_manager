@@ -52,6 +52,26 @@
                             <show_in_store>1</show_in_store>
                             <comment>Enter your message which will be received on the Mobile app whenever a New Customer is registered.</comment>
                         </customer_register_notification_msg>
+                         
+                        <minimum_qty translate="label">
+                            <label>Minimum Quantity Required For Product</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <validate>validate-zero-or-greater</validate>
+                            <comment>Enter minimum quantity required for product inventory alerts</comment>
+                        </minimum_qty>
+                        <product_inventory_notification_msg translate="label">
+                            <label>Product Inventory Notification Message</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Enter your message which will be received on the Mobile app whenever a product qty is lower than minimum qty.</comment>
+                        </product_inventory_notification_msg>
                     </fields>
                 </mobileassistant_general>
             </groups>

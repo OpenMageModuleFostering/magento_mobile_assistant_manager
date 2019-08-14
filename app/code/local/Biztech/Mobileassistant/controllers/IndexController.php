@@ -2,8 +2,17 @@
     class Biztech_Mobileassistant_IndexController extends Mage_Core_Controller_Front_Action
     {
         public function indexAction()
-        {
+        {   
             if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
+
+                if(class_exists("SOAPClient") == false)
+                {
+                    $result['error'] = $this->__('It seems you have php extension: SOAP disabled in your server. Please enable.'); 
+                    $jsonData = Mage::helper('core')->jsonEncode($result);
+                    return Mage::app()->getResponse()->setBody($jsonData);  
+                }
+
+
                 $isSecure = Mage::app()->getFrontController()->getRequest()->isSecure(); 
                 $validate_url = false;
                 if($isSecure)
@@ -53,12 +62,13 @@
 
         public function testModuleAction()
         {
-           $post_data   = Mage::app()->getRequest()->getParams();
+            $post_data   = Mage::app()->getRequest()->getParams();
             $url         = $post_data['magento_url'];
             $url_info    = parse_url($url);
 
             if(Mage::getConfig()->getModuleConfig('Biztech_Mobileassistant')->is('active', 'true') && Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled'))
             {
+                
                 $isSecure = Mage::app()->getFrontController()->getRequest()->isSecure(); 
                 $validate_url = false;
                 if($isSecure)
@@ -121,7 +131,8 @@
                     $fields = array();
                     $fields['notification_flag'] = $flag;
                     $where = $connection->quoteInto('user_id =?', $user_id);
-                    $connection->update('mobileassistant', $fields, $where);
+                    $prefix = Mage::getConfig()->getTablePrefix();
+                    $connection->update($prefix.'mobileassistant', $fields, $where);
                     $connection->commit();
                 } catch (Exception $e){
                     return $e->getMessage();
@@ -131,7 +142,7 @@
                 return Mage::app()->getResponse()->setBody($result);
             }
         }
-        
+
         public function getLogoAndCurrencyAction()
         {
             $post_data = Mage::app()->getRequest()->getParams();
@@ -146,8 +157,8 @@
             $result    = Mage::helper('core')->jsonEncode($resultArr);
             return Mage::app()->getResponse()->setBody($result);
         }     
-        
-          public function logoutAction()
+
+        public function logoutAction()
         {
             $post_data   = Mage::app()->getRequest()->getParams();
             $user        = $post_data['userapi']; 
@@ -158,14 +169,15 @@
             foreach($collections as $user)
             {
                 $device_token = $user->getDeviceToken();
-            
+
                 try {
                     $connection = Mage::getSingleton('core/resource')->getConnection('core_write');
                     $connection->beginTransaction();
                     $fields = array();
                     $fields['is_logout'] = 1;
                     $where = $connection->quoteInto('device_token =?', $device_token);
-                    $connection->update('mobileassistant', $fields, $where);
+                    $prefix = Mage::getConfig()->getTablePrefix();
+                    $connection->update($prefix.'mobileassistant', $fields, $where);
                     $connection->commit();
                 } catch (Exception $e){
                     return $e->getMessage();

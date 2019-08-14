@@ -3,10 +3,72 @@
     {
         private static $_handleCustomerFirstOrderCounter = 1;
         private static $_handleCustomerFirstRegisterNotificationCounter = 1;
+
+
+        /*inventory status-starts*/
+        public function catalogInventorySave(Varien_Event_Observer $observer)
+        {  
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+                $event = $observer->getEvent();
+                $_item = $event->getItem();
+                $params = array();
+                $params['product_id'] = $_item->getProductId();
+                $params['name'] = $_item->getProductName();
+                $params['qty'] = $_item->getProduct()->getStockItem()->getQty();
+                //$params['qty_change'] = ($_item->getTotalQty());
+                $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                if($params['qty'] <= $minQty){
+                    Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                }
+            }
+        }
+
+
+        public function subtractQuoteInventory(Varien_Event_Observer $observer)
+        {             
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+                              
+                $quote = $observer->getEvent()->getQuote();
+                foreach ($quote->getAllItems() as $item) {
+                    $params = array();
+                    $params['product_id'] = $item->getProductId();
+                    $params['name'] = $item->getName();
+                    $params['qty'] = $item->getProduct()->getStockItem()->getQty();
+                    //$params['qty_change'] = ($_item->getTotalQty());
+                    $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                    if(($params['qty']-$params['qty_change']) <= $minQty){
+                        Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                    }
+
+                }
+            }
+        }
+
+        public function revertQuoteInventory(Varien_Event_Observer $observer)
+        {   
+            if (Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')) {
+               
+                $quote = $observer->getEvent()->getQuote();
+                foreach ($quote->getAllItems() as $item) {
+                    $params = array();
+                    $params['product_id'] = $item->getProductId();
+                    $params['name'] = $item->getName();
+                    $params['qty'] = $item->getProduct()->getStockItem()->getQty();
+                    //$params['qty_change'] = ($_item->getTotalQty());
+                    $minQty = Mage::getStoreConfig('mobileassistant/mobileassistant_general/minimum_qty');
+                    if(($params['qty']+$params['qty_change']) <= $minQty){
+                        Mage::helper('mobileassistant')->pushNotification('product',$params['product_id'],$params);   
+                    }
+                }
+            }
+        }
+        /*inventory status- ends*/
+
+
         public function sales_order_save_after(Varien_Event_Observer $observer)
         {  
             if(Mage::getStoreConfig('mobileassistant/mobileassistant_general/enabled')){
-
+            
                 $action = Mage::app()->getFrontController()->getAction();
                 if ($action->getFullActionName() == 'checkout_onepage_saveOrder')
                 {
