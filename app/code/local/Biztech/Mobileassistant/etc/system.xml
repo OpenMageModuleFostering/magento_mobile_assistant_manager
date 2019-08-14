@@ -8,7 +8,7 @@
     </tabs>
     <sections>
         <mobileassistant translate="label" module="mobileassistant">
-            <label>Mobile Assistant</label>
+            <label>MageMob Admin</label>
             <tab>biztech</tab>
             <frontend_type>text</frontend_type>
             <sort_order>10</sort_order>
