@@ -15,13 +15,21 @@
                 $limit     = $post_data['limit'];
                 $offset    = $post_data['offset'];
                 $new_products    = $post_data['last_fetch_product'];
+                $is_refresh = $post_data['is_refresh'];
+
                 $products  = Mage::getModel('catalog/product')->getCollection()->addStoreFilter($storeId)->setOrder('entity_id', 'desc');
                 if($offset != null){
                     $products->addAttributeToFilter('entity_id', array('lt' => $offset));
                 }
-                if($new_products != null){
-                    $products->addAttributeToFilter('entity_id', array('gt' => $new_products));
+                
+
+                if($is_refresh == 1){
+                    $last_fetch_product     =   $post_data['last_fetch_product'];
+                    $min_fetch_product      =   $post_data['min_fetch_product'];
+                    $last_updated           =   $post_data['last_updated'];
+                    $products->getSelect()->where("(entity_id BETWEEN '".$min_fetch_product."'AND '".$last_fetch_product ."' AND updated_at > '".$last_updated."') OR entity_id >'".$last_fetch_product."'");
                 }
+
                 $products->getSelect()->limit($limit);
 
                 foreach($products as $product)
@@ -41,8 +49,8 @@
                         'type'   => $product->getTypeId()
                     );
                 }
-
-                $productResultArr  = array('productlistdata' => $product_list);
+                $updated_time       = date("Y-m-d H:i:s", Mage::getModel('core/date')->timestamp(time()));
+                $productResultArr  = array('productlistdata' => $product_list,'updated_time' =>$updated_time);
                 $productListResult = Mage::helper('core')->jsonEncode($productResultArr);
                 return Mage::app()->getResponse()->setBody($productListResult);
             }else{

@@ -10,17 +10,27 @@
                     echo $this->__("The Login has expired. Please try log in again.");
                     return false;
                 }
-                $limit         = $post_data['limit'];
-                $offset        = $post_data['offset'];
-                $new_customers = $post_data['last_fetch_customer'];
-                $customers     = Mage::getModel('customer/customer')->getCollection()->addAttributeToSelect('*')->setOrder('entity_id', 'desc');
+                $limit          =   $post_data['limit'];
+                $offset         =   $post_data['offset'];
+                $new_customers  =   $post_data['last_fetch_customer'];
+                $is_refresh     =   $post_data['is_refresh'];
+
+                $customers      =   Mage::getModel('customer/customer')->getCollection()->addAttributeToSelect('*')->setOrder('entity_id', 'desc');
 
                 if($offset != null){
                     $customers->addAttributeToFilter('entity_id', array('lt' => $offset));
                 }
-                if($new_customers != null){
-                    $customers->addAttributeToFilter('entity_id', array('gt' => $new_customers));
+                
+
+                if($is_refresh == 1){
+                    $last_fetch_customer        =   $post_data['last_fetch_customer'];
+                    $min_fetch_customer         =   $post_data['min_fetch_customer'];
+                    $last_updated               =   $post_data['last_updated'];
+
+                    $customers->getSelect()->where("(entity_id BETWEEN '".$min_fetch_customer."'AND '".$last_fetch_customer ."' AND updated_at > '".$last_updated."') OR entity_id >'".$last_fetch_customer."'");
                 }
+
+
                 $customers->getSelect()->limit($limit);
                 foreach($customers as $customer){
                     $website_name = Mage::app()->getWebsite($customer->getWebsiteId())->getName();
@@ -31,7 +41,8 @@
                         'website_name'  => $website_name
                     );
                 }
-                $customerListResultArr = array('customerlistdata' => $customer_list);
+                $updated_time       = date("Y-m-d H:i:s", Mage::getModel('core/date')->timestamp(time()));
+                $customerListResultArr = array('customerlistdata' => $customer_list,'updated_time' =>$updated_time);
                 $customerListResult    = Mage::helper('core')->jsonEncode($customerListResultArr);
                 return Mage::app()->getResponse()->setBody($customerListResult);
             }else{
