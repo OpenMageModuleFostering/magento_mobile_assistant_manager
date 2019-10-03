@@ -1,3 +1,5 @@
+
+
 ## Original Package Description
 
 Magento Mobile Assistant Extension allows online merchants to view all the details of their online store on their iOS devices (iPhone, iPad or iPod). 
